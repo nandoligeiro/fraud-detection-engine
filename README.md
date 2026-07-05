@@ -33,6 +33,7 @@ fraud-detection-engine/
 │   ├── 07-TestStrategy.md
 │   ├── 08-Deployment.md
 │   ├── 09-Roadmap.md
+│   ├── 10-CodeStructure.md
 │   └── adr/
 ├── diagrams/
 ├── openapi/
@@ -65,6 +66,8 @@ br.com.nandoligeiro.frauddetection
 ```
 
 A regra é simples: `domain` não conhece Spring, Kafka, Redis ou banco. `application` orquestra casos de uso por portas. `infrastructure` concentra adapters, DTOs externos, mappers de integração e configurações de framework.
+
+Mais detalhes em [`docs/10-CodeStructure.md`](docs/10-CodeStructure.md).
 
 ## Decisões arquiteturais
 
