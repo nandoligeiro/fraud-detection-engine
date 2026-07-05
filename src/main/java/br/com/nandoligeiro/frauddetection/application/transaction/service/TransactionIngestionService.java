@@ -5,13 +5,13 @@ import br.com.nandoligeiro.frauddetection.application.transaction.port.in.Ingest
 import br.com.nandoligeiro.frauddetection.application.transaction.port.in.TransactionIngestionUseCase;
 import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionEventPublisherPort;
 import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionProcessingGuardPort;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.AccountId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.CardId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.GeoLocation;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Merchant;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Money;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.TransactionId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.AccountId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.CardId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.GeoLocation;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Merchant;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Money;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.TransactionId;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

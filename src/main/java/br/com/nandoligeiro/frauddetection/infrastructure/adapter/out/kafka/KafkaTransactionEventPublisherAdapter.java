@@ -1,7 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.kafka;
 
 import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionEventPublisherPort;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventMapper;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventPayload;
 import org.springframework.beans.factory.annotation.Value;

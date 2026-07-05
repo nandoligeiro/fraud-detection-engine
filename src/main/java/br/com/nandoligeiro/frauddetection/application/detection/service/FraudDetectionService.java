@@ -5,12 +5,12 @@ import br.com.nandoligeiro.frauddetection.application.detection.port.in.Evaluate
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.FraudDetectionResult;
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
 import br.com.nandoligeiro.frauddetection.application.port.out.RuleProviderPort;
-import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
-import br.com.nandoligeiro.frauddetection.domain.model.rule.FraudRule;
-import br.com.nandoligeiro.frauddetection.domain.model.rule.RuleEvaluationResult;
-import br.com.nandoligeiro.frauddetection.domain.service.DeterministicRuleEngine;
-import br.com.nandoligeiro.frauddetection.domain.service.FraudAlertFactory;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.domain.fraud.service.FraudAlertFactory;
+import br.com.nandoligeiro.frauddetection.domain.rule.model.FraudRule;
+import br.com.nandoligeiro.frauddetection.domain.rule.model.RuleEvaluationResult;
+import br.com.nandoligeiro.frauddetection.domain.rule.service.DeterministicRuleEngine;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;

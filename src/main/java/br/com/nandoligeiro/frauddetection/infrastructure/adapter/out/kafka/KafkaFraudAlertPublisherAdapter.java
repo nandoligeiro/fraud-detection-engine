@@ -1,7 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.kafka;
 
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
-import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.FraudAlertEventMapper;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.FraudAlertEventPayload;
 import org.springframework.beans.factory.annotation.Value;

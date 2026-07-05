@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.application.detection.port.in;
 
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
 
 public final class EvaluateTransactionCommand {
 

@@ -1,7 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka;
 
-import br.com.nandoligeiro.frauddetection.domain.model.FraudDecision;
-import br.com.nandoligeiro.frauddetection.domain.model.FraudSeverity;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudDecision;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudSeverity;
 
 import java.time.Instant;
 import java.util.List;
