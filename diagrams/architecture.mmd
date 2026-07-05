@@ -1,0 +1,20 @@
+flowchart LR
+    origin[Sistemas Origem] --> gateway[API Gateway]
+    gateway --> ingestion[Ingestion Service\nJava 21 + Spring Boot]
+    ingestion --> redis_idem[(Redis\nIdempotência)]
+    ingestion --> tx_topic[[Kafka\ntransaction-events]]
+
+    tx_topic --> fraud[Fraud Engine\nConsumer Group]
+    fraud --> rules[Rule Engine\nRegras em Memória]
+    fraud --> redis_state[(Redis\nSliding Window)]
+    rules --> alerts[[Kafka\nfraud-alerts]]
+
+    alerts --> notification[Notification Service]
+    alerts --> backoffice[Backoffice Antifraude]
+    notification --> customer[Cliente Final\nPush / Email / SMS]
+
+    admin[Rule Admin API] --> postgres[(PostgreSQL\nRules + Audit)]
+    postgres --> rule_updates[[Kafka\nrule-updates]]
+    rule_updates --> fraud
+
+    fraud --> audit[(Audit Store)]
