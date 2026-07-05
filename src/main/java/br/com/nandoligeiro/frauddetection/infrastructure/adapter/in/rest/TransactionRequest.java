@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.in.rest;
 
-import br.com.nandoligeiro.frauddetection.domain.model.TransactionChannel;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.TransactionChannel;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
