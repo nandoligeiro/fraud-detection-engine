@@ -2,5 +2,5 @@ package br.com.nandoligeiro.frauddetection.application.port.in;
 
 public interface DetectFraudUseCase {
 
-    FraudDetectionResult detect(DetectFraudCommand command);
+    FraudDetectionResult detect(EvaluateTransactionCommand command);
 }
