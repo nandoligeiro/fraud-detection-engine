@@ -1,10 +1,10 @@
 package br.com.nandoligeiro.frauddetection.application.service;
 
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionCommand;
 import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionUseCase;
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestionResult;
 import br.com.nandoligeiro.frauddetection.application.port.out.IdempotencyStorePort;
 import br.com.nandoligeiro.frauddetection.application.port.out.TransactionEventPublisherPort;
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestTransactionCommand;
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestionResult;
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
 import org.springframework.stereotype.Service;
 
