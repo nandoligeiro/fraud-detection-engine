@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.logging;
 
-import br.com.nandoligeiro.frauddetection.application.port.out.TransactionEventPublisherPort;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionEventPublisherPort;
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

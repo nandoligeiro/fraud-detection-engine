@@ -1,10 +1,10 @@
-package br.com.nandoligeiro.frauddetection.application.service;
+package br.com.nandoligeiro.frauddetection.application.transaction.service;
 
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionCommand;
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionUseCase;
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestionResult;
-import br.com.nandoligeiro.frauddetection.application.port.out.IdempotencyStorePort;
-import br.com.nandoligeiro.frauddetection.application.port.out.TransactionEventPublisherPort;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.IngestTransactionCommand;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.IngestionResult;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.TransactionIngestionUseCase;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionEventPublisherPort;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionProcessingGuardPort;
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
 import br.com.nandoligeiro.frauddetection.domain.model.vo.AccountId;
 import br.com.nandoligeiro.frauddetection.domain.model.vo.CardId;
@@ -17,31 +17,25 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
-public class TransactionIngestionService implements IngestTransactionUseCase {
+public class TransactionIngestionService implements TransactionIngestionUseCase {
 
-    private static final Duration IDEMPOTENCY_TTL = Duration.ofMinutes(10);
+    private static final Duration TTL = Duration.ofMinutes(10);
 
-    private final IdempotencyStorePort idempotencyStore;
-    private final TransactionEventPublisherPort transactionEventPublisher;
+    private final TransactionProcessingGuardPort guard;
+    private final TransactionEventPublisherPort publisher;
 
-    public TransactionIngestionService(
-            IdempotencyStorePort idempotencyStore,
-            TransactionEventPublisherPort transactionEventPublisher
-    ) {
-        this.idempotencyStore = idempotencyStore;
-        this.transactionEventPublisher = transactionEventPublisher;
+    public TransactionIngestionService(TransactionProcessingGuardPort guard, TransactionEventPublisherPort publisher) {
+        this.guard = guard;
+        this.publisher = publisher;
     }
 
     @Override
     public IngestionResult ingest(IngestTransactionCommand command) {
-        boolean firstProcessing = idempotencyStore.tryStartProcessing(command.transactionId(), IDEMPOTENCY_TTL);
-
-        if (!firstProcessing) {
+        if (!guard.acquire(command.transactionId(), TTL)) {
             return IngestionResult.duplicated(command.transactionId());
         }
-
         Transaction transaction = toTransaction(command);
-        transactionEventPublisher.publish(transaction);
+        publisher.publish(transaction);
         return IngestionResult.accepted(transaction.id().value());
     }
 

@@ -1,8 +1,8 @@
-package br.com.nandoligeiro.frauddetection.application.service;
+package br.com.nandoligeiro.frauddetection.application.detection.service;
 
-import br.com.nandoligeiro.frauddetection.application.port.in.DetectFraudUseCase;
-import br.com.nandoligeiro.frauddetection.application.port.in.EvaluateTransactionCommand;
-import br.com.nandoligeiro.frauddetection.application.port.in.FraudDetectionResult;
+import br.com.nandoligeiro.frauddetection.application.detection.port.in.DetectFraudUseCase;
+import br.com.nandoligeiro.frauddetection.application.detection.port.in.EvaluateTransactionCommand;
+import br.com.nandoligeiro.frauddetection.application.detection.port.in.FraudDetectionResult;
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
 import br.com.nandoligeiro.frauddetection.application.port.out.RuleProviderPort;
 import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
@@ -23,11 +23,7 @@ public class FraudDetectionService implements DetectFraudUseCase {
     private final FraudAlertPublisherPort alertPublisher;
     private final FraudAlertFactory alertFactory;
 
-    public FraudDetectionService(
-            RuleProviderPort ruleProvider,
-            FraudAlertPublisherPort alertPublisher,
-            Clock clock
-    ) {
+    public FraudDetectionService(RuleProviderPort ruleProvider, FraudAlertPublisherPort alertPublisher, Clock clock) {
         this.ruleProvider = ruleProvider;
         this.alertPublisher = alertPublisher;
         this.alertFactory = new FraudAlertFactory(clock);
@@ -42,9 +38,7 @@ public class FraudDetectionService implements DetectFraudUseCase {
             return FraudDetectionResult.normal(transaction);
         }
 
-        List<RuleEvaluationResult> triggeredRules = DeterministicRuleEngine
-                .withRules(rules)
-                .evaluate(transaction);
+        List<RuleEvaluationResult> triggeredRules = DeterministicRuleEngine.withRules(rules).evaluate(transaction);
 
         if (triggeredRules.isEmpty()) {
             return FraudDetectionResult.normal(transaction);
