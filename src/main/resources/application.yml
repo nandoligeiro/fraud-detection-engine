@@ -22,6 +22,8 @@ fraud:
   kafka:
     enabled: ${FRAUD_KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    alert-publisher:
+      enabled: ${FRAUD_KAFKA_ALERT_PUBLISHER_ENABLED:false}
     topics:
       transaction-events: transaction-events
       fraud-alerts: fraud-alerts
