@@ -1,9 +1,9 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.in.rest;
 
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionCommand;
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionUseCase;
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestionResult;
-import br.com.nandoligeiro.frauddetection.application.port.in.IngestionStatus;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.IngestTransactionCommand;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.IngestionResult;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.IngestionStatus;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.in.TransactionIngestionUseCase;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class TransactionController {
 
-    private final IngestTransactionUseCase ingestTransactionUseCase;
+    private final TransactionIngestionUseCase transactionIngestionUseCase;
 
-    public TransactionController(IngestTransactionUseCase ingestTransactionUseCase) {
-        this.ingestTransactionUseCase = ingestTransactionUseCase;
+    public TransactionController(TransactionIngestionUseCase transactionIngestionUseCase) {
+        this.transactionIngestionUseCase = transactionIngestionUseCase;
     }
 
     @PostMapping
@@ -32,7 +32,7 @@ public class TransactionController {
             @RequestHeader("Idempotency-Key") @NotBlank String idempotencyKey,
             @Valid @RequestBody TransactionRequest request
     ) {
-        IngestionResult result = ingestTransactionUseCase.ingest(toCommand(request));
+        IngestionResult result = transactionIngestionUseCase.execute(toCommand(request));
         TransactionResponse response = new TransactionResponse(result.transactionId(), result.status());
 
         if (result.status() == IngestionStatus.DUPLICATED) {
