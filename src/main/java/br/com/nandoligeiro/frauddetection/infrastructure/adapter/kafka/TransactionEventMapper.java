@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.adapter.kafka;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka;
 
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
 import br.com.nandoligeiro.frauddetection.domain.model.vo.AccountId;

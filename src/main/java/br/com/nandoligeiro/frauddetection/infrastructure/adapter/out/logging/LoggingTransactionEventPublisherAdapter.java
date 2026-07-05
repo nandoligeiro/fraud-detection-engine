@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.adapter.out.logging;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.logging;
 
 import br.com.nandoligeiro.frauddetection.application.port.out.TransactionEventPublisherPort;
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;

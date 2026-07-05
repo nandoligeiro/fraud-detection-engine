@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.adapter.out.memory;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.memory;
 
 import br.com.nandoligeiro.frauddetection.application.port.out.IdempotencyStorePort;
 import org.springframework.stereotype.Component;

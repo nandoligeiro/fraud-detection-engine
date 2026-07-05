@@ -1,9 +1,9 @@
-package br.com.nandoligeiro.frauddetection.adapter.out.kafka;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.kafka;
 
-import br.com.nandoligeiro.frauddetection.adapter.kafka.FraudAlertEventMapper;
-import br.com.nandoligeiro.frauddetection.adapter.kafka.FraudAlertEventPayload;
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
 import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.FraudAlertEventMapper;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.FraudAlertEventPayload;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -1,6 +1,6 @@
-package br.com.nandoligeiro.frauddetection.config;
+package br.com.nandoligeiro.frauddetection.infrastructure.config;
 
-import br.com.nandoligeiro.frauddetection.adapter.kafka.TransactionEventPayload;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventPayload;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -54,7 +54,7 @@ public class KafkaTransactionFlowConfig {
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         JsonDeserializer<TransactionEventPayload> valueDeserializer = new JsonDeserializer<>(TransactionEventPayload.class);
-        valueDeserializer.addTrustedPackages("br.com.nandoligeiro.frauddetection.adapter.kafka");
+        valueDeserializer.addTrustedPackages("br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka");
 
         return new DefaultKafkaConsumerFactory<>(properties, new StringDeserializer(), valueDeserializer);
     }

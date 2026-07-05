@@ -1,10 +1,10 @@
-package br.com.nandoligeiro.frauddetection.adapter.in.kafka;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.in.kafka;
 
-import br.com.nandoligeiro.frauddetection.adapter.kafka.TransactionEventMapper;
-import br.com.nandoligeiro.frauddetection.adapter.kafka.TransactionEventPayload;
 import br.com.nandoligeiro.frauddetection.application.port.in.DetectFraudUseCase;
 import br.com.nandoligeiro.frauddetection.application.port.in.EvaluateTransactionCommand;
 import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventMapper;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

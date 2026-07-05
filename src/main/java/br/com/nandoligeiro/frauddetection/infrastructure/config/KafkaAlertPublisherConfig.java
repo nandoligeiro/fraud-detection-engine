@@ -1,6 +1,6 @@
-package br.com.nandoligeiro.frauddetection.config;
+package br.com.nandoligeiro.frauddetection.infrastructure.config;
 
-import br.com.nandoligeiro.frauddetection.adapter.kafka.FraudAlertEventPayload;
+import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.FraudAlertEventPayload;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

@@ -33,6 +33,7 @@ fraud-detection-engine/
 │   ├── 07-TestStrategy.md
 │   ├── 08-Deployment.md
 │   ├── 09-Roadmap.md
+│   ├── 10-CodeStructure.md
 │   └── adr/
 ├── diagrams/
 ├── openapi/
@@ -43,6 +44,30 @@ fraud-detection-engine/
 ├── src/
 └── presentation/
 ```
+
+## Estrutura de código
+
+```text
+br.com.nandoligeiro.frauddetection
+├── domain
+│   ├── model
+│   └── service
+├── application
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   └── service
+└── infrastructure
+    ├── adapter
+    │   ├── in
+    │   ├── out
+    │   └── kafka
+    └── config
+```
+
+A regra é simples: `domain` não conhece Spring, Kafka, Redis ou banco. `application` orquestra casos de uso por portas. `infrastructure` concentra adapters, DTOs externos, mappers de integração e configurações de framework.
+
+Mais detalhes em [`docs/10-CodeStructure.md`](docs/10-CodeStructure.md).
 
 ## Decisões arquiteturais
 

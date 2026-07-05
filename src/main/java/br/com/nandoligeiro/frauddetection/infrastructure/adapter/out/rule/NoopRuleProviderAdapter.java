@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.adapter.out.rule;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.rule;
 
 import br.com.nandoligeiro.frauddetection.application.port.out.RuleProviderPort;
 import br.com.nandoligeiro.frauddetection.domain.model.rule.FraudRule;

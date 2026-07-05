@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.adapter.in.rest;
+package br.com.nandoligeiro.frauddetection.infrastructure.adapter.in.rest;
 
 import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionCommand;
 import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionUseCase;

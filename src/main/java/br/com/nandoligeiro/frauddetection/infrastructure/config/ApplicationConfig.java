@@ -1,4 +1,4 @@
-package br.com.nandoligeiro.frauddetection.config;
+package br.com.nandoligeiro.frauddetection.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
