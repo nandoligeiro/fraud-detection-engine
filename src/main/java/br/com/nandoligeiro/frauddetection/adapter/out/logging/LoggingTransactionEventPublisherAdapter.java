@@ -14,9 +14,9 @@ public class LoggingTransactionEventPublisherAdapter implements TransactionEvent
     @Override
     public void publish(Transaction transaction) {
         log.info("transaction accepted for async processing transactionId={} accountId={} amount={} channel={}",
-                transaction.transactionId(),
-                transaction.accountId(),
-                transaction.amount(),
+                transaction.id().value(),
+                transaction.accountId().value(),
+                transaction.money(),
                 transaction.channel()
         );
     }
