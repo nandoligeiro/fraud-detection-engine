@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.memory;
 
-import br.com.nandoligeiro.frauddetection.application.port.out.IdempotencyStorePort;
+import br.com.nandoligeiro.frauddetection.application.transaction.port.out.IdempotencyStorePort;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
