@@ -31,14 +31,29 @@ Não deve depender de Spring, Kafka, Redis, PostgreSQL ou HTTP.
 
 ## Application
 
-Contém os casos de uso e portas.
+A camada de aplicação é organizada por feature/caso de uso.
+
+```text
+application
+├── transaction
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   └── service
+└── detection
+    ├── port
+    │   ├── in
+    │   └── out
+    └── service
+```
 
 Responsabilidades:
 
-- orquestrar casos de uso;
-- declarar portas de entrada;
-- declarar portas de saída;
-- coordenar domínio e dependências externas por abstração.
+- `transaction`: recebimento de transações, controle de processamento e publicação do evento transacional;
+- `detection`: avaliação antifraude e decisão de geração de alerta;
+- `port.in`: contratos de entrada da feature;
+- `port.out`: contratos de saída da feature;
+- `service`: orquestração do caso de uso.
 
 A camada de aplicação depende do domínio, mas não depende diretamente de adapters.
 
@@ -78,4 +93,4 @@ Responsabilidades:
 - `application`: sabe caso de uso.
 - `infrastructure`: sabe tecnologia.
 
-Essa organização mantém a arquitetura hexagonal mais explícita e facilita trocar detalhes técnicos sem alterar regras de negócio.
+Essa organização mantém a arquitetura hexagonal mais explícita e evita pacotes genéricos grandes como `application.port.in` e `application.service` crescendo sem contexto.
