@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka;
 
-import br.com.nandoligeiro.frauddetection.domain.model.TransactionChannel;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.TransactionChannel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
