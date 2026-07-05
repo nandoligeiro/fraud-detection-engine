@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    participant Origin as Sistema Origem
+    participant API as API Gateway
+    participant Ingestion as Ingestion Service
+    participant Redis as Redis Idempotência
+    participant KafkaTx as Kafka transaction-events
+    participant Fraud as Fraud Engine
+    participant Rule as Rule Engine
+    participant RedisState as Redis Sliding Window
+    participant KafkaAlert as Kafka fraud-alerts
+    participant Notification as Notification Service
+    participant Customer as Cliente Final
+
+    Origin->>API: POST /v1/transactions
+    API->>Ingestion: Encaminha transação autenticada
+    Ingestion->>Ingestion: Valida contrato e headers
+    Ingestion->>Redis: SET transactionId NX EX
+    alt Duplicada
+        Redis-->>Ingestion: chave existente
+        Ingestion-->>Origin: 409 DUPLICATED
+    else Nova transação
+        Redis-->>Ingestion: chave criada
+        Ingestion->>KafkaTx: publica TransactionReceived
+        Ingestion-->>Origin: 202 ACCEPTED
+        KafkaTx->>Fraud: consome evento
+        Fraud->>Rule: executa regras stateless
+        Fraud->>RedisState: consulta sliding window
+        RedisState-->>Fraud: estado recente
+        Fraud->>Rule: executa regras stateful
+        alt Suspeita
+            Fraud->>KafkaAlert: publica FraudAlert
+            KafkaAlert->>Notification: consome alerta
+            Notification->>Customer: envia push/email/sms
+        else Não suspeita
+            Fraud->>Fraud: audita decisão sem alerta
+        end
+    end
