@@ -1,0 +1,20 @@
+sequenceDiagram
+    autonumber
+    participant Analyst as Analista Antifraude
+    participant Admin as Rule Admin API
+    participant DB as PostgreSQL
+    participant Kafka as Kafka rule-updates
+    participant Engine as Fraud Engine
+    participant Cache as Rules Cache
+
+    Analyst->>Admin: Cria ou altera regra
+    Admin->>Admin: Valida DSL e permissões
+    Admin->>DB: Persiste nova versão e auditoria
+    DB-->>Admin: Confirma alteração
+    Admin->>Kafka: Publica RuleUpdated
+    Kafka->>Engine: Entrega evento de atualização
+    Engine->>DB: Busca versão atual da regra
+    DB-->>Engine: Retorna regra versionada
+    Engine->>Engine: Valida regra
+    Engine->>Cache: Atualiza snapshot em memória
+    Engine-->>Kafka: Commit offset
