@@ -1,0 +1,275 @@
+openapi: 3.0.3
+info:
+  title: Fraud Detection Engine API
+  version: 1.0.0
+  description: API de ingestão de transações para avaliação antifraude em tempo real.
+servers:
+  - url: http://localhost:8080
+    description: Local
+paths:
+  /v1/transactions:
+    post:
+      summary: Ingest transaction
+      description: Recebe uma transação financeira para avaliação antifraude assíncrona.
+      operationId: ingestTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Identificador de rastreabilidade da requisição.
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Chave idempotente, preferencialmente igual ao transactionId.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+            examples:
+              default:
+                value:
+                  transactionId: tx-123456
+                  accountId: acc-hash-001
+                  cardId: card-hash-001
+                  amount: 1250.90
+                  currency: BRL
+                  merchantId: merchant-001
+                  merchantCategoryCode: '5411'
+                  channel: CARD_PRESENT
+                  country: BR
+                  city: SAO_PAULO
+                  latitude: -23.5505
+                  longitude: -46.6333
+                  occurredAt: '2026-07-05T10:15:30Z'
+      responses:
+        '202':
+          description: Transação aceita para processamento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionAcceptedResponse'
+        '400':
+          description: Payload inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Transação duplicada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDuplicatedResponse'
+        '503':
+          description: Dependência indisponível.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/rules:
+    post:
+      summary: Create or update rule
+      description: Endpoint administrativo para criação ou atualização de regra determinística.
+      operationId: upsertRule
+      tags:
+        - Rules
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FraudRule'
+      responses:
+        '202':
+          description: Regra aceita para propagação.
+        '400':
+          description: Regra inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/rules/{ruleId}/disable:
+    post:
+      summary: Disable rule by Kill Switch
+      description: Desativa uma regra específica em cenário operacional crítico.
+      operationId: disableRule
+      tags:
+        - Rules
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Trace-Id
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Regra desativada.
+  /actuator/health:
+    get:
+      summary: Health check
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: Aplicação saudável.
+  /actuator/prometheus:
+    get:
+      summary: Prometheus metrics
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: Métricas expostas.
+components:
+  schemas:
+    TransactionRequest:
+      type: object
+      required:
+        - transactionId
+        - accountId
+        - cardId
+        - amount
+        - currency
+        - merchantId
+        - merchantCategoryCode
+        - channel
+        - country
+        - occurredAt
+      properties:
+        transactionId:
+          type: string
+          example: tx-123456
+        accountId:
+          type: string
+          example: acc-hash-001
+        cardId:
+          type: string
+          example: card-hash-001
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 1250.90
+        currency:
+          type: string
+          example: BRL
+        merchantId:
+          type: string
+          example: merchant-001
+        merchantCategoryCode:
+          type: string
+          example: '5411'
+        channel:
+          type: string
+          enum:
+            - CARD_PRESENT
+            - CARD_NOT_PRESENT
+            - ATM
+            - PIX
+            - TRANSFER
+        country:
+          type: string
+          example: BR
+        city:
+          type: string
+          example: SAO_PAULO
+        latitude:
+          type: number
+          format: double
+          example: -23.5505
+        longitude:
+          type: number
+          format: double
+          example: -46.6333
+        occurredAt:
+          type: string
+          format: date-time
+    TransactionAcceptedResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        status:
+          type: string
+          example: ACCEPTED
+    TransactionDuplicatedResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        status:
+          type: string
+          example: DUPLICATED
+    FraudRule:
+      type: object
+      required:
+        - ruleId
+        - version
+        - enabled
+        - priority
+        - severity
+        - when
+        - then
+      properties:
+        ruleId:
+          type: string
+          example: HIGH_AMOUNT_AND_RECENT_TX
+        version:
+          type: integer
+          example: 3
+        enabled:
+          type: boolean
+          example: true
+        priority:
+          type: integer
+          example: 10
+        severity:
+          type: string
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - CRITICAL
+        when:
+          type: object
+          additionalProperties: true
+        then:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: INVALID_PAYLOAD
+        message:
+          type: string
+          example: Invalid request payload.
+        traceId:
+          type: string
+          example: trace-001
