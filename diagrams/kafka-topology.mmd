@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Producers
+        origin[Sistemas Origem]
+        admin[Rule Admin API]
+    end
+
+    subgraph Kafka
+        tx[[transaction-events\nkey: accountId/cardId\npartitions: 32]]
+        alerts[[fraud-alerts\nkey: transactionId]]
+        rules[[rule-updates\nkey: ruleId]]
+        dlq[[fraud-dlq\nkey: transactionId]]
+    end
+
+    subgraph Consumers
+        ingestion[Ingestion Service]
+        fraud[Fraud Engine Consumer Group]
+        notification[Notification Service]
+        backoffice[Backoffice Antifraude]
+    end
+
+    origin --> ingestion
+    ingestion --> tx
+    tx --> fraud
+    fraud --> alerts
+    fraud --> dlq
+    admin --> rules
+    rules --> fraud
+    alerts --> notification
+    alerts --> backoffice
