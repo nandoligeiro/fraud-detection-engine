@@ -1,7 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.logging;
 
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
-import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
