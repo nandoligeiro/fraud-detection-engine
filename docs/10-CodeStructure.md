@@ -4,7 +4,7 @@ Este documento descreve a organização de pacotes da aplicação.
 
 ## Objetivo
 
-Evitar que detalhes de infraestrutura contaminem o domínio e a camada de aplicação.
+Evitar que detalhes de infraestrutura contaminem o domínio e a camada de aplicação, mantendo os pacotes organizados por feature/subdomínio.
 
 ## Pacotes principais
 
@@ -17,28 +17,54 @@ br.com.nandoligeiro.frauddetection
 
 ## Domain
 
-Contém o modelo de negócio e serviços de domínio.
+O domínio é organizado por feature/subdomínio.
+
+```text
+domain
+├── transaction
+│   └── model
+│       └── vo
+├── fraud
+│   ├── model
+│   └── service
+└── rule
+    ├── model
+    └── service
+```
 
 Responsabilidades:
 
-- entidades e agregados;
-- value objects;
-- regras de domínio;
-- serviços de domínio;
-- decisões puras de negócio.
+- `transaction`: transação, canal e value objects transacionais;
+- `fraud`: alerta, decisão, severidade e factory de alerta;
+- `rule`: contrato de regra, regras determinísticas e motor de avaliação.
 
-Não deve depender de Spring, Kafka, Redis, PostgreSQL ou HTTP.
+O domínio não deve depender de Spring, Kafka, Redis, PostgreSQL ou HTTP.
 
 ## Application
 
-Contém os casos de uso e portas.
+A aplicação também é organizada por feature.
+
+```text
+application
+├── transaction
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   └── service
+└── detection
+    ├── port
+    │   ├── in
+    │   └── out
+    └── service
+```
 
 Responsabilidades:
 
-- orquestrar casos de uso;
-- declarar portas de entrada;
-- declarar portas de saída;
-- coordenar domínio e dependências externas por abstração.
+- `transaction`: caso de uso de recebimento e publicação de evento transacional;
+- `detection`: caso de uso de avaliação antifraude e publicação de alerta;
+- `port.in`: contratos de entrada da feature;
+- `port.out`: dependências externas da feature;
+- `service`: orquestração do caso de uso.
 
 A camada de aplicação depende do domínio, mas não depende diretamente de adapters.
 
@@ -78,4 +104,4 @@ Responsabilidades:
 - `application`: sabe caso de uso.
 - `infrastructure`: sabe tecnologia.
 
-Essa organização mantém a arquitetura hexagonal mais explícita e facilita trocar detalhes técnicos sem alterar regras de negócio.
+Essa organização mantém a arquitetura hexagonal mais explícita e evita pacotes genéricos grandes como `application.port.in` e `domain.model` crescendo sem contexto.
