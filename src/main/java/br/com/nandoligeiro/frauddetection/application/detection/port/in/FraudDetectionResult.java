@@ -1,8 +1,8 @@
 package br.com.nandoligeiro.frauddetection.application.detection.port.in;
 
-import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
-import br.com.nandoligeiro.frauddetection.domain.model.FraudDecision;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudDecision;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
 
 import java.util.Optional;
 
