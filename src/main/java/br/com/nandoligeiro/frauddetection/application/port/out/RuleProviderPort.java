@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.application.port.out;
 
-import br.com.nandoligeiro.frauddetection.domain.model.rule.FraudRule;
+import br.com.nandoligeiro.frauddetection.domain.rule.model.FraudRule;
 
 import java.util.List;
 
