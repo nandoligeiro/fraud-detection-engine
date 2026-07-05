@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.adapter.in.rest;
 
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestionStatus;
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestionStatus;
 
 public record TransactionResponse(
         String transactionId,
