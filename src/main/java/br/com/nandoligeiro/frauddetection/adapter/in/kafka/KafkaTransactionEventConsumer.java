@@ -28,10 +28,7 @@ public class KafkaTransactionEventConsumer {
         this.mapper = mapper;
     }
 
-    @KafkaListener(
-            topics = "${fraud.kafka.topics.transaction-events}",
-            groupId = "${spring.kafka.consumer.group-id}"
-    )
+    @KafkaListener(topics = "${fraud.kafka.topics.transaction-events}", groupId = "fraud-detection-engine")
     public void consume(TransactionEventPayload payload) {
         Transaction transaction = mapper.toDomain(payload);
         var result = detectFraudUseCase.detect(EvaluateTransactionCommand.of(transaction));
