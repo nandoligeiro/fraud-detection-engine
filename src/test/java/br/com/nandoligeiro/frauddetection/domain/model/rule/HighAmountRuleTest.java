@@ -1,14 +1,14 @@
-package br.com.nandoligeiro.frauddetection.domain.model.rule;
+package br.com.nandoligeiro.frauddetection.domain.rule.model;
 
-import br.com.nandoligeiro.frauddetection.domain.model.FraudSeverity;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
-import br.com.nandoligeiro.frauddetection.domain.model.TransactionChannel;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.AccountId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.CardId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.GeoLocation;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Merchant;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Money;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.TransactionId;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudSeverity;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.TransactionChannel;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.AccountId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.CardId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.GeoLocation;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Merchant;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Money;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.TransactionId;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
