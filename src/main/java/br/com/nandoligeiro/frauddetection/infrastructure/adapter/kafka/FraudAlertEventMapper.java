@@ -1,7 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka;
 
-import br.com.nandoligeiro.frauddetection.domain.model.FraudAlert;
-import br.com.nandoligeiro.frauddetection.domain.model.TriggeredRule;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
+import br.com.nandoligeiro.frauddetection.domain.fraud.model.TriggeredRule;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
