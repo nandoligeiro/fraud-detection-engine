@@ -2,7 +2,7 @@ package br.com.nandoligeiro.frauddetection.infrastructure.adapter.in.kafka;
 
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.DetectFraudUseCase;
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.EvaluateTransactionCommand;
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventMapper;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventPayload;
 import org.slf4j.Logger;
