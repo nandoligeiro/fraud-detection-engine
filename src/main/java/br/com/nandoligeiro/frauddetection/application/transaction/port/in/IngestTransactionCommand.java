@@ -1,6 +1,6 @@
 package br.com.nandoligeiro.frauddetection.application.transaction.port.in;
 
-import br.com.nandoligeiro.frauddetection.domain.model.TransactionChannel;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.TransactionChannel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
