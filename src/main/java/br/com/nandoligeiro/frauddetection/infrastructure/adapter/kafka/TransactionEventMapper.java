@@ -1,12 +1,12 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka;
 
-import br.com.nandoligeiro.frauddetection.domain.model.Transaction;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.AccountId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.CardId;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.GeoLocation;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Merchant;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.Money;
-import br.com.nandoligeiro.frauddetection.domain.model.vo.TransactionId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.Transaction;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.AccountId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.CardId;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.GeoLocation;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Merchant;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.Money;
+import br.com.nandoligeiro.frauddetection.domain.transaction.model.vo.TransactionId;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -34,7 +34,7 @@ public class TransactionEventMapper {
                 transaction.money().amount(),
                 transaction.money().currency().getCurrencyCode(),
                 transaction.merchant().merchantId(),
-                transaction.merchant().categoryCode(),
+                transaction.merchant().merchantCategoryCode(),
                 transaction.channel(),
                 transaction.location().country(),
                 transaction.location().city(),
