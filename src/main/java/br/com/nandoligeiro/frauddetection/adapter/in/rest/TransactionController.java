@@ -1,9 +1,9 @@
 package br.com.nandoligeiro.frauddetection.adapter.in.rest;
 
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionCommand;
 import br.com.nandoligeiro.frauddetection.application.port.in.IngestTransactionUseCase;
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestTransactionCommand;
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestionResult;
-import br.com.nandoligeiro.frauddetection.application.usecase.IngestionStatus;
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestionResult;
+import br.com.nandoligeiro.frauddetection.application.port.in.IngestionStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
