@@ -44,6 +44,28 @@ fraud-detection-engine/
 └── presentation/
 ```
 
+## Estrutura de código
+
+```text
+br.com.nandoligeiro.frauddetection
+├── domain
+│   ├── model
+│   └── service
+├── application
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   └── service
+└── infrastructure
+    ├── adapter
+    │   ├── in
+    │   ├── out
+    │   └── kafka
+    └── config
+```
+
+A regra é simples: `domain` não conhece Spring, Kafka, Redis ou banco. `application` orquestra casos de uso por portas. `infrastructure` concentra adapters, DTOs externos, mappers de integração e configurações de framework.
+
 ## Decisões arquiteturais
 
 As decisões estão registradas em `docs/adr`.
