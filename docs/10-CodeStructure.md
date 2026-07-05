@@ -17,15 +17,26 @@ br.com.nandoligeiro.frauddetection
 
 ## Domain
 
-Contém o modelo de negócio e serviços de domínio.
+O domínio passa a ser organizado por feature/subdomínio.
+
+```text
+domain
+├── transaction
+│   └── model
+│       └── vo
+├── fraud
+│   ├── model
+│   └── service
+└── rule
+    ├── model
+    └── service
+```
 
 Responsabilidades:
 
-- entidades e agregados;
-- value objects;
-- regras de domínio;
-- serviços de domínio;
-- decisões puras de negócio.
+- `transaction`: transação, canal, dinheiro, merchant, localização e identificadores;
+- `fraud`: alerta, decisão, severidade e criação de alerta;
+- `rule`: contrato de regra, regras determinísticas e motor de avaliação.
 
 Não deve depender de Spring, Kafka, Redis, PostgreSQL ou HTTP.
 
@@ -93,4 +104,4 @@ Responsabilidades:
 - `application`: sabe caso de uso.
 - `infrastructure`: sabe tecnologia.
 
-Essa organização mantém a arquitetura hexagonal mais explícita e evita pacotes genéricos grandes como `application.port.in` e `application.service` crescendo sem contexto.
+Essa organização mantém a arquitetura hexagonal mais explícita e evita pacotes genéricos grandes como `domain.model`, `domain.service`, `application.port.in` e `application.service` crescendo sem contexto.
