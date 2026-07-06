@@ -696,9 +696,6 @@
           <div class="step"><small>5</small><strong>Kafka</strong><span>Publica em transaction-events.</span></div>
         </div>
 
-        <div class="quote">
-          Eu não tentei vender exatamente-once. Preferi assumir at-least-once delivery e garantir efeito effectively-once com idempotência.
-        </div>
       </section>
 
       <section id="kafka">
@@ -835,7 +832,7 @@
         <div class="timeline">
           <div class="timeline-item">
             <strong>Redis</strong>
-            <p>Idempotência distribuída com SET NX EX, suportando múltiplos pods e retries.</p>
+            <p>Idempot&ecirc;ncia distribu&iacute;da, suportando m&uacute;ltiplos pods e retries.</p>
           </div>
           <div class="timeline-item">
             <strong>PostgreSQL</strong>
@@ -903,8 +900,7 @@
         </div>
 
         <div class="callout">
-          <h3>Versão de 30 segundos</h3>
-          <h3>Resumo da demo</h3>
+          <p>
             A solução é um motor antifraude event-driven. A API recebe transações, publica em Kafka,
             um consumer executa regras determinísticas no domínio e, quando há suspeita, publica um alerta
             em outro tópico. Organizei com arquitetura hexagonal: domínio puro, aplicação com casos de uso
