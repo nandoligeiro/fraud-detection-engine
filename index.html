@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fraud Detection Engine | Demo</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #62717f;
+      --line: #d8e0e7;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --nav: #101820;
+      --cyan: #1b98a6;
+      --green: #3a8f66;
+      --amber: #bd7d17;
+      --red: #b94b4b;
+      --shadow: 0 18px 48px rgba(25, 38, 52, .12);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(27, 152, 166, .08) 0 1px, transparent 1px 72px),
+        linear-gradient(180deg, rgba(23, 32, 42, .06) 0 1px, transparent 1px 72px),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      background: var(--nav);
+      color: #eef5f8;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+      overflow: auto;
+    }
+
+    .brand {
+      margin-bottom: 28px;
+    }
+
+    .brand small {
+      display: block;
+      color: #9fb1bf;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    nav a {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      color: #c7d4dd;
+      font-size: 14px;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      color: #ffffff;
+      background: rgba(255, 255, 255, .08);
+      outline: none;
+    }
+
+    nav span {
+      color: #75d5dc;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .content {
+      min-width: 0;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      align-items: end;
+      padding: 64px 36px 40px;
+      background:
+        linear-gradient(145deg, rgba(16, 24, 32, .92), rgba(20, 38, 45, .86)),
+        radial-gradient(circle at 82% 18%, rgba(27, 152, 166, .45), transparent 34%),
+        linear-gradient(90deg, #101820, #20323b);
+      color: #f7fbfc;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 18vh;
+      background:
+        linear-gradient(90deg, transparent 0 8%, rgba(255, 255, 255, .16) 8% 8.2%, transparent 8.2% 100%),
+        linear-gradient(90deg, transparent 0 31%, rgba(255, 255, 255, .16) 31% 31.2%, transparent 31.2% 100%),
+        linear-gradient(90deg, transparent 0 58%, rgba(255, 255, 255, .16) 58% 58.2%, transparent 58.2% 100%),
+        linear-gradient(90deg, transparent 0 86%, rgba(255, 255, 255, .16) 86% 86.2%, transparent 86.2% 100%);
+      opacity: .6;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #a9dbe0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    h1 {
+      max-width: 920px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 24px 0 0;
+      color: #d4e1e7;
+      font-size: 20px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      max-width: 760px;
+      margin-top: 42px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .metric {
+      padding: 18px;
+      background: rgba(16, 24, 32, .56);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      color: #ffffff;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: #b6c9d4;
+      font-size: 13px;
+    }
+
+    section {
+      width: min(var(--max), calc(100% - 72px));
+      margin: 0 auto;
+      padding: 76px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 34px;
+    }
+
+    .number {
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 1px 0 rgba(16, 24, 32, .03);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #314250;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 28px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 118px;
+      padding: 18px 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+    }
+
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -11px;
+      width: 11px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    .step small {
+      color: var(--cyan);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .step strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .step span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .quote {
+      margin-top: 26px;
+      padding: 26px;
+      color: #0f2f34;
+      background: #e9f7f8;
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 20px;
+      font-weight: 680;
+      line-height: 1.35;
+    }
+
+    .code {
+      display: block;
+      overflow: auto;
+      margin: 0;
+      padding: 18px;
+      color: #d9edf0;
+      background: #101820;
+      border-radius: var(--radius);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+    }
+
+    .decision div {
+      padding: 22px;
+      background: #fff;
+    }
+
+    .decision strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .decision p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .timeline-item strong {
+      color: var(--cyan);
+      font-size: 14px;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .callout {
+      margin-top: 24px;
+      padding: 28px;
+      color: #fff;
+      background: #17202a;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .callout h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .callout p {
+      margin: 0;
+      color: #d7e4ea;
+      font-size: 18px;
+    }
+
+    .accent-cyan {
+      border-top: 3px solid var(--cyan);
+    }
+
+    .accent-green {
+      border-top: 3px solid var(--green);
+    }
+
+    .accent-amber {
+      border-top: 3px solid var(--amber);
+    }
+
+    .accent-red {
+      border-top: 3px solid var(--red);
+    }
+
+    footer {
+      width: min(var(--max), calc(100% - 72px));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        display: block;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        padding: 18px;
+      }
+
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 56px 24px 34px;
+      }
+
+      section,
+      footer {
+        width: min(100% - 36px, var(--max));
+        padding: 56px 0;
+      }
+
+      .section-head {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .hero-metrics,
+      .cols-2,
+      .cols-3,
+      .flow,
+      .decision,
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+
+      .step:not(:last-child)::after {
+        display: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      aside {
+        display: none;
+      }
+
+      .app {
+        display: block;
+      }
+
+      .hero,
+      section {
+        min-height: auto;
+        break-after: page;
+      }
+
+      .card,
+      .step,
+      .callout {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+        <small>Demo t&eacute;cnica</small>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <strong>Fraud Detection Engine</strong>
+      </div>
+      <nav aria-label="Seções da apresentação">
+        <a href="#problema"><span>01</span> Problema</a>
+        <a href="#arquitetura"><span>02</span> Arquitetura</a>
+        <a href="#ingestao"><span>03</span> Ingestão</a>
+        <a href="#kafka"><span>04</span> Kafka</a>
+        <a href="#deteccao"><span>05</span> Detecção</a>
+        <a href="#alerta"><span>06</span> Alerta</a>
+        <a href="#mvp"><span>07</span> MVP</a>
+        <a href="#evolucao"><span>08</span> Evolução</a>
+        <a href="#tradeoffs"><span>09</span> Trade-offs</a>
+        <a href="#resumo"><span>10</span> Resumo</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="hero">
+        <div class="hero-inner">
+          <div class="eyebrow">Demonstra&ccedil;&atilde;o t&eacute;cnica do MVP</div>
+          <h1>Motor antifraude em tempo real, explicável e orientado a eventos.</h1>
+          <p>
+            Uma arquitetura para receber transações rapidamente, desacoplar a decisão por Kafka
+            e gerar alertas com regras determinísticas auditáveis.
+          </p>
+          <div class="hero-metrics" aria-label="Metas do case">
+            <div class="metric">
+              <strong>8k</strong>
+              <span>TPS médio esperado</span>
+            </div>
+            <div class="metric">
+              <strong>25k</strong>
+              <span>TPS em pico</span>
+            </div>
+            <div class="metric">
+              <strong>500ms</strong>
+              <span>janela-alvo de alerta</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section id="problema">
+        <div class="section-head">
+          <div class="number">01 Problema</div>
+          <div>
+            <h2>Antes da tecnologia, a jornada é de risco.</h2>
+            <p class="lead">
+              Cada transação carrega sinais de comportamento, valor, canal e localização.
+              O motor precisa decidir se há suspeita sem prender o canal de entrada.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card accent-cyan">
+            <h3>Transaction</h3>
+            <p>Representa identificadores, valor, moeda, merchant, canal, localização e horário.</p>
+            <div class="pill-row">
+              <span class="pill">transactionId</span>
+              <span class="pill">accountId</span>
+              <span class="pill">cardId</span>
+            </div>
+          </article>
+          <article class="card accent-green">
+            <h3>Rule</h3>
+            <p>Define critérios determinísticos, prioridade, versão, severidade e status.</p>
+            <div class="pill-row">
+              <span class="pill">HIGH_AMOUNT</span>
+              <span class="pill">CARD_NOT_PRESENT</span>
+            </div>
+          </article>
+          <article class="card accent-amber">
+            <h3>Fraud</h3>
+            <p>Consolida decisão, alerta, severidade e regras acionadas para investigação.</p>
+            <div class="pill-row">
+              <span class="pill">SUSPICIOUS</span>
+              <span class="pill">FraudAlert</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="quote">
+          Receber rápido, desacoplar por evento e decidir de forma explicável.
+        </div>
+      </section>
+
+      <section id="arquitetura">
+        <div class="section-head">
+          <div class="number">02 Arquitetura</div>
+          <div>
+            <h2>Hexagonal por responsabilidade, event-driven por fluxo.</h2>
+            <p class="lead">
+              O desenho separa decisão de negócio de detalhes técnicos. O domínio não conhece
+              Spring, Kafka, Redis ou banco.
+            </p>
+          </div>
+        </div>
+
+        <div class="decision">
+          <div>
+            <strong>Domain</strong>
+            <p>Transação, regra, motor determinístico, decisão, severidade e alerta.</p>
+          </div>
+          <div>
+            <strong>Application</strong>
+            <p>Casos de uso, comandos e portas para orquestrar ingestão e detecção.</p>
+          </div>
+          <div>
+            <strong>Infrastructure</strong>
+            <p>Adapters REST, Kafka, logging, memória e configuração Spring.</p>
+          </div>
+          <div>
+            <strong>Boundaries</strong>
+            <p>Kafka marca a fronteira entre receber a transação e decidir a fraude.</p>
+          </div>
+        </div>
+
+        <pre class="code">br.com.nandoligeiro.frauddetection
+├── application
+│   ├── transaction
+│   └── detection
+├── domain
+│   ├── transaction
+│   ├── rule
+│   └── fraud
+└── infrastructure
+    ├── adapter
+    └── config</pre>
+      </section>
+
+      <section id="ingestao">
+        <div class="section-head">
+          <div class="number">03 Ingestão</div>
+          <div>
+            <h2>A API aceita a transação, controla duplicidade e publica o evento.</h2>
+            <p class="lead">
+              O request HTTP não executa a decisão antifraude completa. Ele transforma o payload
+              em comando, aplica o guard e entrega a transação para processamento assíncrono.
+            </p>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="step"><small>1</small><strong>Client</strong><span>Envia a transação financeira.</span></div>
+          <div class="step"><small>2</small><strong>REST Adapter</strong><span>Valida payload e trace.</span></div>
+          <div class="step"><small>3</small><strong>Use Case</strong><span>Cria o comando de ingestão.</span></div>
+          <div class="step"><small>4</small><strong>Guard</strong><span>Evita efeito duplicado.</span></div>
+          <div class="step"><small>5</small><strong>Kafka</strong><span>Publica em transaction-events.</span></div>
+        </div>
+
+        <div class="quote">
+          Eu não tentei vender exatamente-once. Preferi assumir at-least-once delivery e garantir efeito effectively-once com idempotência.
+        </div>
+      </section>
+
+      <section id="kafka">
+        <div class="section-head">
+          <div class="number">04 Kafka</div>
+          <div>
+            <h2>Kafka é a fronteira entre ingestão e decisão.</h2>
+            <p class="lead">
+              O broker absorve variação de carga, permite escalar consumers e evita que lentidão
+              de regra, cache, banco ou notificação contamine o canal de entrada.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card accent-cyan">
+            <h3>O que melhora</h3>
+            <p>Desacoplamento, replay, particionamento por chave, escala horizontal e isolamento operacional.</p>
+          </article>
+          <article class="card accent-amber">
+            <h3>O que cobra</h3>
+            <p>Idempotência, consumer lag, DLQ, retry policy e observabilidade real do fluxo.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="deteccao">
+        <div class="section-head">
+          <div class="number">05 Detecção</div>
+          <div>
+            <h2>Regras determinísticas primeiro: explicáveis, testáveis e auditáveis.</h2>
+            <p class="lead">
+              O consumer reconstrói o domínio, chama o caso de uso de detecção, carrega regras por porta
+              e deixa o motor de domínio avaliar a transação.
+            </p>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="step"><small>1</small><strong>transaction-events</strong><span>Evento aceito para avaliação.</span></div>
+          <div class="step"><small>2</small><strong>Kafka Consumer</strong><span>Mapeia payload para domínio.</span></div>
+          <div class="step"><small>3</small><strong>RuleProviderPort</strong><span>Carrega regras ativas.</span></div>
+          <div class="step"><small>4</small><strong>Rule Engine</strong><span>Avalia critérios determinísticos.</span></div>
+          <div class="step"><small>5</small><strong>FraudAlertFactory</strong><span>Cria alerta quando há suspeita.</span></div>
+        </div>
+
+        <div class="pill-row">
+          <span class="pill">DefaultRuleProviderAdapter</span>
+          <span class="pill">DeterministicRuleEngine</span>
+          <span class="pill">FraudDetectionService</span>
+          <span class="pill">FraudAlertFactory</span>
+        </div>
+      </section>
+
+      <section id="alerta">
+        <div class="section-head">
+          <div class="number">06 Alerta</div>
+          <div>
+            <h2>O alerta vira evento e chega a um consumidor independente.</h2>
+            <p class="lead">
+              O MVP não implementa push, e-mail ou backoffice reais. Ele prova que a decisão antifraude
+              gera um alerta publicável para canais consumidores.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card">
+            <h3>Payload</h3>
+            <p>alertId, transactionId, accountId, severidade, decisão, regras acionadas e timestamps.</p>
+          </article>
+          <article class="card">
+            <h3>Tópico</h3>
+            <p><strong>fraud-alerts</strong> representa o contrato de saída para canais internos e externos.</p>
+          </article>
+          <article class="card">
+            <h3>Simulador</h3>
+            <p>KafkaFraudAlertConsumer confirma que o alerta chega ao próximo componente.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="mvp">
+        <div class="section-head">
+          <div class="number">07 MVP</div>
+          <div>
+            <h2>O caminho feliz está demonstrável de ponta a ponta.</h2>
+            <p class="lead">
+              A versão atual comprova a arquitetura central sem fingir que toda a complexidade produtiva
+              já foi implementada.
+            </p>
+          </div>
+        </div>
+
+        <pre class="code">REST /v1/transactions
+  → TransactionIngestionService
+  → Kafka transaction-events
+  → KafkaTransactionEventConsumer
+  → FraudDetectionService
+  → DefaultRuleProviderAdapter
+  → DeterministicRuleEngine
+  → FraudAlertFactory
+  → Kafka fraud-alerts
+  → KafkaFraudAlertConsumer</pre>
+
+        <div class="grid cols-3" style="margin-top: 18px;">
+          <article class="card accent-green">
+            <h3>Validado</h3>
+            <p>Recebimento REST, publicação Kafka, consumo assíncrono, regras e alerta.</p>
+          </article>
+          <article class="card accent-cyan">
+            <h3>Flags</h3>
+            <p>Kafka, publisher, consumer de alerta e regras default são habilitados por configuração.</p>
+          </article>
+          <article class="card accent-amber">
+            <h3>Comando</h3>
+            <p>make up, make kafka-topics e make run-mvp formam a jornada local.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="evolucao">
+        <div class="section-head">
+          <div class="number">08 Evolução</div>
+          <div>
+            <h2>O MVP deixa os próximos adapters claramente posicionados.</h2>
+            <p class="lead">
+              As lacunas produtivas não mudam o domínio: entram como adapters, políticas operacionais
+              e contratos de infraestrutura.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <strong>Redis</strong>
+            <p>Idempotência distribuída com SET NX EX, suportando múltiplos pods e retries.</p>
+          </div>
+          <div class="timeline-item">
+            <strong>PostgreSQL</strong>
+            <p>Persistência de regras, auditoria de alertas, versões, severidade e decisão tomada.</p>
+          </div>
+          <div class="timeline-item">
+            <strong>Rule Admin API</strong>
+            <p>Criação, alteração, versionamento e kill switch de regras sem redeploy.</p>
+          </div>
+          <div class="timeline-item">
+            <strong>DLQ e retry</strong>
+            <p>DefaultErrorHandler, DeadLetterPublishingRecoverer e reprocessamento seguro.</p>
+          </div>
+          <div class="timeline-item">
+            <strong>Observabilidade</strong>
+            <p>OpenTelemetry, consumer lag, latência de detecção, p95/p99 e métricas de negócio.</p>
+          </div>
+          <div class="timeline-item">
+            <strong>Testcontainers</strong>
+            <p>Testes de integração com Kafka, Redis e PostgreSQL para validar infraestrutura real.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="tradeoffs">
+        <div class="section-head">
+          <div class="number">09 Trade-offs</div>
+          <div>
+            <h2>As escolhas foram simples de demonstrar e honestas para evoluir.</h2>
+            <p class="lead">
+              Cada decisão reduz alguma complexidade inicial, mas preserva uma rota clara para produção.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card">
+            <h3>Síncrono vs assíncrono</h3>
+            <p>Assíncrono ganha desacoplamento e escala, mas exige lag, DLQ, retry e rastreabilidade.</p>
+          </article>
+          <article class="card">
+            <h3>Regras vs ML</h3>
+            <p>Regras determinísticas ganham explicabilidade e auditabilidade; ML pode entrar depois como score híbrido.</p>
+          </article>
+          <article class="card">
+            <h3>Memória vs Redis</h3>
+            <p>Memória fecha o MVP; Redis torna a idempotência distribuída entre instâncias.</p>
+          </article>
+          <article class="card">
+            <h3>Default rules vs banco</h3>
+            <p>Regras fixas provam o fluxo; PostgreSQL e Rule Admin API resolvem governança.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="resumo">
+        <div class="section-head">
+          <div class="number">10 Resumo</div>
+          <div>
+            <h2>Vis&atilde;o executiva da demonstra&ccedil;&atilde;o.</h2>
+            <p class="lead">
+              Uma s&iacute;ntese direta do fluxo, das decis&otilde;es arquiteturais e do caminho de evolu&ccedil;&atilde;o.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <h3>Versão de 30 segundos</h3>
+          <h3>Resumo da demo</h3>
+            A solução é um motor antifraude event-driven. A API recebe transações, publica em Kafka,
+            um consumer executa regras determinísticas no domínio e, quando há suspeita, publica um alerta
+            em outro tópico. Organizei com arquitetura hexagonal: domínio puro, aplicação com casos de uso
+            e infraestrutura com REST e Kafka. O MVP fecha o fluxo ponta a ponta; as evoluções naturais são
+            Redis para idempotência, PostgreSQL para regras e auditoria, DLQ para resiliência e OpenTelemetry
+            para observabilidade.
+          </p>
+        </div>
+
+        <div class="quote">
+          O MVP é simples o suficiente para validar a solução, mas estruturado o suficiente para crescer sem acoplar API, regra, Kafka e banco.
+        </div>
+      </section>
+
+      <footer>
+        Fraud Detection Engine &mdash; apresenta&ccedil;&atilde;o HTML standalone da demonstra&ccedil;&atilde;o t&eacute;cnica do MVP.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
