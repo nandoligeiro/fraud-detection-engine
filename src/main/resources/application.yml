@@ -19,11 +19,19 @@ management:
       application: ${spring.application.name}
 
 fraud:
+  rules:
+    default-enabled: ${FRAUD_RULES_DEFAULT_ENABLED:false}
+    home-country: ${FRAUD_RULES_HOME_COUNTRY:BR}
+    high-amount:
+      threshold: ${FRAUD_RULES_HIGH_AMOUNT_THRESHOLD:5000.00}
+      currency: ${FRAUD_RULES_HIGH_AMOUNT_CURRENCY:BRL}
   kafka:
     enabled: ${FRAUD_KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     alert-publisher:
       enabled: ${FRAUD_KAFKA_ALERT_PUBLISHER_ENABLED:false}
+    alert-consumer:
+      enabled: ${FRAUD_KAFKA_ALERT_CONSUMER_ENABLED:false}
     topics:
       transaction-events: transaction-events
       fraud-alerts: fraud-alerts
