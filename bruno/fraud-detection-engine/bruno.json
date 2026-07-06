@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Fraud Detection Engine",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

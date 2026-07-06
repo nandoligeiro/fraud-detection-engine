@@ -1,0 +1,18 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/actuator/health
+  body: none
+  auth: none
+}
+
+headers {
+}
+
+tests {
+  expect(res.status).to.equal(200);
+}
