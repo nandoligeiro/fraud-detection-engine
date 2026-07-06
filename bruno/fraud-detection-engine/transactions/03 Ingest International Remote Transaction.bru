@@ -1,0 +1,40 @@
+meta {
+  name: 03 Ingest International Remote Transaction
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/transactions
+  body: json
+  auth: none
+}
+
+headers {
+  X-Trace-Id: {{traceId}}-international-remote
+  Idempotency-Key: tx-bruno-international-remote-001
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "transactionId": "tx-bruno-international-remote-001",
+    "accountId": "acc-hash-003",
+    "cardId": "card-hash-003",
+    "amount": 300.00,
+    "currency": "BRL",
+    "merchantId": "merchant-003",
+    "merchantCategoryCode": "5812",
+    "channel": "CARD_NOT_PRESENT",
+    "country": "US",
+    "city": "MIAMI",
+    "latitude": 25.7617,
+    "longitude": -80.1918,
+    "occurredAt": "2026-07-05T10:17:30Z"
+  }
+}
+
+tests {
+  expect(res.status).to.equal(202);
+  expect(res.body.status).to.equal("ACCEPTED");
+}
