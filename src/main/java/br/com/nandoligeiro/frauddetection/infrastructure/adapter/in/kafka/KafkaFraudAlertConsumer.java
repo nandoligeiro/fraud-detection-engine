@@ -13,7 +13,11 @@ public class KafkaFraudAlertConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaFraudAlertConsumer.class);
 
-    @KafkaListener(topics = "${fraud.kafka.topics.fraud-alerts}", groupId = "fraud-alert-notification-simulator")
+    @KafkaListener(
+            topics = "${fraud.kafka.topics.fraud-alerts}",
+            groupId = "fraud-alert-notification-simulator",
+            containerFactory = "fraudAlertKafkaListenerContainerFactory"
+    )
     public void consume(FraudAlertEventPayload payload) {
         log.info(
                 "fraud alert delivered to notification simulator alertId={} transactionId={} severity={} triggeredRules={}",
