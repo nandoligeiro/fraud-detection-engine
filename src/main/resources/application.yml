@@ -23,6 +23,11 @@ management:
       application: ${spring.application.name}
 
 fraud:
+  audit:
+    enabled: ${FRAUD_AUDIT_ENABLED:false}
+    jdbc-url: ${FRAUD_AUDIT_JDBC_URL:jdbc:postgresql://localhost:5432/fraud}
+    username: ${FRAUD_AUDIT_USERNAME:fraud}
+    password: ${FRAUD_AUDIT_PASSWORD:fraud}
   idempotency:
     provider: ${FRAUD_IDEMPOTENCY_PROVIDER:memory}
   rules:
