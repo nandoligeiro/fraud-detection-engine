@@ -28,6 +28,9 @@ fraud:
   kafka:
     enabled: ${FRAUD_KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    retry:
+      max-attempts: ${FRAUD_KAFKA_RETRY_MAX_ATTEMPTS:3}
+      backoff-ms: ${FRAUD_KAFKA_RETRY_BACKOFF_MS:1000}
     alert-publisher:
       enabled: ${FRAUD_KAFKA_ALERT_PUBLISHER_ENABLED:false}
     alert-consumer:
