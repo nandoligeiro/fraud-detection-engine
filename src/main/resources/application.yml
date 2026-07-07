@@ -1,6 +1,10 @@
 spring:
   application:
     name: fraud-detection-engine
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 server:
   port: 8080
@@ -19,6 +23,13 @@ management:
       application: ${spring.application.name}
 
 fraud:
+  audit:
+    enabled: ${FRAUD_AUDIT_ENABLED:false}
+    jdbc-url: ${FRAUD_AUDIT_JDBC_URL:jdbc:postgresql://localhost:5432/fraud}
+    username: ${FRAUD_AUDIT_USERNAME:fraud}
+    password: ${FRAUD_AUDIT_PASSWORD:fraud}
+  idempotency:
+    provider: ${FRAUD_IDEMPOTENCY_PROVIDER:memory}
   rules:
     default-enabled: ${FRAUD_RULES_DEFAULT_ENABLED:false}
     home-country: ${FRAUD_RULES_HOME_COUNTRY:BR}
@@ -28,6 +39,9 @@ fraud:
   kafka:
     enabled: ${FRAUD_KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    retry:
+      max-attempts: ${FRAUD_KAFKA_RETRY_MAX_ATTEMPTS:3}
+      backoff-ms: ${FRAUD_KAFKA_RETRY_BACKOFF_MS:1000}
     alert-publisher:
       enabled: ${FRAUD_KAFKA_ALERT_PUBLISHER_ENABLED:false}
     alert-consumer:
