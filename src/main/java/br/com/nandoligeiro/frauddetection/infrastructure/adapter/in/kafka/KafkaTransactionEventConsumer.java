@@ -27,13 +27,11 @@ public class KafkaTransactionEventConsumer {
 
     @KafkaListener(topics = "${fraud.kafka.topics.transaction-events}", groupId = "fraud-detection-engine")
     public void consume(TransactionEventPayload payload) {
+        log.info("transaction event consumed eventId={} transactionId={} accountId={} channel={} country={}", payload.eventId(), payload.transactionId(), payload.accountId(), payload.channel(), payload.country());
+
         Transaction transaction = mapper.toDomain(payload);
         var result = detectFraudUseCase.detect(EvaluateTransactionCommand.of(transaction));
 
-        log.info("transaction evaluated transactionId={} decision={} hasAlert={}",
-                result.transactionId(),
-                result.decision(),
-                result.hasAlert()
-        );
+        log.info("transaction evaluated transactionId={} decision={} hasAlert={}", result.transactionId(), result.decision(), result.hasAlert());
     }
 }
