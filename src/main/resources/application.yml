@@ -1,6 +1,10 @@
 spring:
   application:
     name: fraud-detection-engine
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 server:
   port: 8080
@@ -19,6 +23,8 @@ management:
       application: ${spring.application.name}
 
 fraud:
+  idempotency:
+    provider: ${FRAUD_IDEMPOTENCY_PROVIDER:memory}
   rules:
     default-enabled: ${FRAUD_RULES_DEFAULT_ENABLED:false}
     home-country: ${FRAUD_RULES_HOME_COUNTRY:BR}
