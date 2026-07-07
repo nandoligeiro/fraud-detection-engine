@@ -20,9 +20,12 @@ public class KafkaFraudAlertConsumer {
     )
     public void consume(FraudAlertEventPayload payload) {
         log.info(
-                "fraud alert delivered to notification simulator alertId={} transactionId={} severity={} triggeredRules={}",
+                "fraud alert delivered to notification simulator eventId={} alertId={} transactionId={} accountId={} decision={} severity={} triggeredRules={}",
+                payload.eventId(),
                 payload.alertId(),
                 payload.transactionId(),
+                payload.accountId(),
+                payload.decision(),
                 payload.severity(),
                 payload.triggeredRules().size()
         );
