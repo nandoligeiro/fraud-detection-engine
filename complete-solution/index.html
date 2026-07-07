@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fraud Detection Engine | Complete Solution</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #62717f;
+      --line: #d8e0e7;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --nav: #101820;
+      --cyan: #1b98a6;
+      --green: #3a8f66;
+      --amber: #bd7d17;
+      --red: #b94b4b;
+      --shadow: 0 18px 48px rgba(25, 38, 52, .12);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(27, 152, 166, .08) 0 1px, transparent 1px 72px),
+        linear-gradient(180deg, rgba(23, 32, 42, .06) 0 1px, transparent 1px 72px),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      background: var(--nav);
+      color: #eef5f8;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+      overflow: auto;
+    }
+
+    .brand { margin-bottom: 24px; }
+    .brand small {
+      display: block;
+      color: #9fb1bf;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    nav { display: grid; gap: 6px; }
+
+    nav a {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      color: #c7d4dd;
+      font-size: 14px;
+    }
+
+    nav a:hover,
+    nav a:focus-visible,
+    nav a.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, .08);
+      outline: none;
+    }
+
+    nav span {
+      color: #75d5dc;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .page-switch {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 0 0 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .page-switch a {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      color: #d7e4ea;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .page-switch a.current {
+      color: #101820;
+      background: #75d5dc;
+      border-color: #75d5dc;
+    }
+
+    .content { min-width: 0; }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      align-items: end;
+      padding: 64px 36px 40px;
+      background:
+        linear-gradient(145deg, rgba(16, 24, 32, .92), rgba(20, 38, 45, .86)),
+        radial-gradient(circle at 82% 18%, rgba(27, 152, 166, .45), transparent 34%),
+        linear-gradient(90deg, #101820, #20323b);
+      color: #f7fbfc;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 18vh;
+      background:
+        linear-gradient(90deg, transparent 0 8%, rgba(255, 255, 255, .16) 8% 8.2%, transparent 8.2% 100%),
+        linear-gradient(90deg, transparent 0 31%, rgba(255, 255, 255, .16) 31% 31.2%, transparent 31.2% 100%),
+        linear-gradient(90deg, transparent 0 58%, rgba(255, 255, 255, .16) 58% 58.2%, transparent 58.2% 100%),
+        linear-gradient(90deg, transparent 0 86%, rgba(255, 255, 255, .16) 86% 86.2%, transparent 86.2% 100%);
+      opacity: .6;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #a9dbe0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    h1 {
+      max-width: 940px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: .95;
+    }
+
+    .hero p {
+      max-width: 820px;
+      margin: 24px 0 0;
+      color: #d4e1e7;
+      font-size: 20px;
+    }
+
+    section {
+      width: min(var(--max), calc(100% - 72px));
+      margin: 0 auto;
+      padding: 76px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 34px;
+    }
+
+    .number {
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.05;
+    }
+
+    .lead {
+      max-width: 820px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid { display: grid; gap: 18px; }
+    .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 1px 0 rgba(16, 24, 32, .03);
+    }
+
+    .card h3 { margin: 0 0 10px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #314250;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .code {
+      display: block;
+      overflow: auto;
+      margin: 0;
+      padding: 18px;
+      color: #d9edf0;
+      background: #101820;
+      border-radius: var(--radius);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    .timeline { display: grid; gap: 12px; }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .timeline-item strong {
+      color: var(--cyan);
+      font-size: 14px;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .callout {
+      margin-top: 24px;
+      padding: 28px;
+      color: #fff;
+      background: #17202a;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .callout p {
+      margin: 0;
+      color: #d7e4ea;
+      font-size: 18px;
+    }
+
+    .quote {
+      margin-top: 26px;
+      padding: 26px;
+      color: #0f2f34;
+      background: #e9f7f8;
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 20px;
+      font-weight: 680;
+      line-height: 1.35;
+    }
+
+    .accent-cyan { border-top: 3px solid var(--cyan); }
+    .accent-green { border-top: 3px solid var(--green); }
+    .accent-amber { border-top: 3px solid var(--amber); }
+    .accent-red { border-top: 3px solid var(--red); }
+
+    footer {
+      width: min(var(--max), calc(100% - 72px));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .app { display: block; }
+      aside { position: static; height: auto; padding: 18px; }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { min-height: auto; padding: 56px 24px 34px; }
+      section, footer { width: min(100% - 36px, var(--max)); padding: 56px 0; }
+      .section-head { grid-template-columns: 1fr; gap: 10px; }
+      .cols-2, .cols-3, .timeline-item { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      aside { display: none; }
+      .app { display: block; }
+      .hero, section { min-height: auto; break-after: page; }
+      .card, .callout { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <small>Complete Solution</small>
+        <strong>Fraud Detection Engine</strong>
+      </div>
+
+      <div class="page-switch" aria-label="Visões da solução">
+        <a href="../">MVP</a>
+        <a class="current" href="./">Complete Solution</a>
+      </div>
+
+      <nav aria-label="Seções da arquitetura completa">
+        <a href="#overview"><span>01</span> Overview</a>
+        <a href="#architecture"><span>02</span> Architecture</a>
+        <a href="#event-driven"><span>03</span> Event-driven</a>
+        <a href="#rules"><span>04</span> Rules</a>
+        <a href="#resilience"><span>05</span> Resilience</a>
+        <a href="#observability"><span>06</span> Observability</a>
+        <a href="#security"><span>07</span> Security</a>
+        <a href="#roadmap"><span>08</span> Roadmap</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="hero">
+        <div class="hero-inner">
+          <div class="eyebrow">Arquitetura produtiva proposta</div>
+          <h1>Evolução para uma plataforma antifraude robusta, operável e escalável.</h1>
+          <p>
+            Esta página descreve como o MVP pode evoluir para uma solução pronta para produção,
+            mantendo o mesmo núcleo de domínio e adicionando componentes produtivos ao redor dele.
+          </p>
+        </div>
+      </header>
+
+      <section id="overview">
+        <div class="section-head">
+          <div class="number">01 Overview</div>
+          <div>
+            <h2>O MVP valida o fluxo. A solução completa prepara a operação real.</h2>
+            <p class="lead">
+              A solução completa não substitui o MVP. Ela mostra a evolução natural para um ambiente financeiro real,
+              com escala, auditoria, governança de regras, resiliência e observabilidade ponta a ponta.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card accent-cyan">
+            <h3>Core preservado</h3>
+            <p>O domínio continua isolado: transação, regra, decisão, severidade, alerta e motor determinístico.</p>
+          </article>
+          <article class="card accent-green">
+            <h3>Adapters produtivos</h3>
+            <p>Redis, PostgreSQL, Kafka, DLQ, API Admin, OpenTelemetry e dashboards entram ao redor do domínio.</p>
+          </article>
+          <article class="card accent-amber">
+            <h3>Operação consciente</h3>
+            <p>A arquitetura passa a considerar retry, idempotência distribuída, auditoria, alertas e evolução controlada.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <div class="section-head">
+          <div class="number">02 Architecture</div>
+          <div>
+            <h2>Arquitetura hexagonal por dentro, plataforma event-driven por fora.</h2>
+            <p class="lead">
+              O centro da solução segue com domínio puro. A infraestrutura cresce por portas e adapters, evitando acoplamento
+              entre regra de negócio, transporte, persistência e mensageria.
+            </p>
+          </div>
+        </div>
+
+        <pre class="code">Client / API Consumer
+  → Transaction API
+  → TransactionIngestionService
+  → IdempotencyPort
+      → RedisIdempotencyAdapter
+  → Kafka transaction-events
+  → Fraud Detection Consumer
+  → FraudDetectionService
+  → RuleProviderPort
+      → PostgreSQLRuleProviderAdapter
+  → DeterministicRuleEngine
+  → FraudDecisionRepositoryPort
+      → PostgreSQLDecisionAuditAdapter
+  → Kafka fraud-alerts
+  → Notification / Case Management / Analytics</pre>
+
+        <div class="quote">
+          A regra de ouro: o domínio decide; a infraestrutura entrega, persiste, observa e protege.
+        </div>
+      </section>
+
+      <section id="event-driven">
+        <div class="section-head">
+          <div class="number">03 Event-driven</div>
+          <div>
+            <h2>Kafka sustenta desacoplamento, replay e escala horizontal.</h2>
+            <p class="lead">
+              O fluxo produtivo assume entrega at-least-once. Para evitar efeitos duplicados, consumidores devem ser idempotentes
+              por desenho, usando chaves de negócio como transactionId, decisionId e eventId.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card accent-cyan">
+            <h3>Eventos principais</h3>
+            <p>TransactionReceived, FraudAnalysisRequested, FraudDecisionApproved, FraudDecisionRejected, FraudRuleMatched e FraudAnalysisFailed.</p>
+          </article>
+          <article class="card accent-amber">
+            <h3>Garantia prática</h3>
+            <p>At-least-once delivery com efeito effectively-once via idempotência, controle de offset e persistência de processamento.</p>
+          </article>
+        </div>
+
+        <div class="pill-row">
+          <span class="pill">partition key: accountId/cardId</span>
+          <span class="pill">consumer lag</span>
+          <span class="pill">retry topics</span>
+          <span class="pill">dead letter topic</span>
+          <span class="pill">correlationId</span>
+        </div>
+      </section>
+
+      <section id="rules">
+        <div class="section-head">
+          <div class="number">04 Rules</div>
+          <div>
+            <h2>Regras deixam de ser fixas e passam a ser governadas.</h2>
+            <p class="lead">
+              A evolução produtiva adiciona persistência, versionamento, prioridade, status, janela de validade,
+              severidade e kill switch operacional para regras antifraude.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item"><strong>Rule Admin API</strong><p>Permite criar, alterar, ativar, desativar e versionar regras sem redeploy.</p></div>
+          <div class="timeline-item"><strong>PostgreSQL</strong><p>Armazena regras, versões, decisões, auditoria e histórico de alterações.</p></div>
+          <div class="timeline-item"><strong>Cache</strong><p>Redis ou cache local com invalidação controlada reduz latência de leitura das regras ativas.</p></div>
+          <div class="timeline-item"><strong>Audit trail</strong><p>Cada decisão registra quais regras foram aplicadas, o motivo e a severidade final.</p></div>
+        </div>
+      </section>
+
+      <section id="resilience">
+        <div class="section-head">
+          <div class="number">05 Resilience</div>
+          <div>
+            <h2>Falhas precisam ser isoladas, rastreáveis e reprocessáveis.</h2>
+            <p class="lead">
+              Em produção, o fluxo não pode depender de sucesso perfeito. A solução precisa aceitar retry controlado,
+              DLQ, reprocessamento seguro, timeouts e fallback para dependências externas.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card accent-red"><h3>DLQ</h3><p>Eventos inválidos ou com falha persistente são enviados para uma dead letter topic.</p></article>
+          <article class="card accent-amber"><h3>Retry</h3><p>Política de retry com backoff evita tempestade de reprocessamento e protege dependências.</p></article>
+          <article class="card accent-green"><h3>Fallback</h3><p>Decisões degradadas podem acionar revisão manual ou regra conservadora, conforme criticidade.</p></article>
+        </div>
+      </section>
+
+      <section id="observability">
+        <div class="section-head">
+          <div class="number">06 Observability</div>
+          <div>
+            <h2>Operar antifraude sem observabilidade é pilotar no escuro.</h2>
+            <p class="lead">
+              A solução completa precisa expor logs estruturados, métricas técnicas, métricas de negócio e tracing distribuído.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card accent-cyan"><h3>Métricas técnicas</h3><p>Consumer lag, throughput, erro por tópico, retry count, DLQ count, latência p95/p99 e tempo de decisão.</p></article>
+          <article class="card accent-green"><h3>Métricas de negócio</h3><p>Volume de transações, quantidade de alertas, regras mais acionadas, severidade e taxa de suspeita por canal.</p></article>
+          <article class="card accent-amber"><h3>Tracing</h3><p>CorrelationId acompanha REST, Kafka, consumer, regra, decisão e publicação de alerta.</p></article>
+          <article class="card accent-red"><h3>Alerting</h3><p>Alarmes para lag alto, DLQ crescente, erro por regra, latência fora do alvo e queda de consumidores.</p></article>
+        </div>
+      </section>
+
+      <section id="security">
+        <div class="section-head">
+          <div class="number">07 Security</div>
+          <div>
+            <h2>Segurança entra como requisito de primeira classe.</h2>
+            <p class="lead">
+              Uma solução antifraude manipula dados sensíveis. Por isso, precisa considerar autenticação,
+              autorização, criptografia, trilha de auditoria e minimização de dados desde o desenho.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card"><h3>API Security</h3><p>OAuth2/JWT, escopos por operação, rate limit e validação forte de payload.</p></article>
+          <article class="card"><h3>Data Protection</h3><p>Criptografia em trânsito e repouso, mascaramento de dados sensíveis e segregação de acessos.</p></article>
+          <article class="card"><h3>Auditability</h3><p>Registro de decisão, regra acionada, versão da regra, usuário/sistema de alteração e data/hora.</p></article>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <div class="section-head">
+          <div class="number">08 Roadmap</div>
+          <div>
+            <h2>O crescimento acontece em fases, sem virar big bang.</h2>
+            <p class="lead">
+              A evolução respeita o MVP e reduz risco técnico. Cada fase adiciona capacidade operacional sem quebrar o núcleo já validado.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item"><strong>Phase 1 — MVP</strong><p>API, Kafka, consumer, regras determinísticas e alerta publicado.</p></div>
+          <div class="timeline-item"><strong>Phase 2 — Production Readiness</strong><p>Redis para idempotência distribuída, PostgreSQL para regras/auditoria e Testcontainers.</p></div>
+          <div class="timeline-item"><strong>Phase 3 — Resilience</strong><p>Retry topics, DLQ, reprocessamento, timeouts, fallback e circuit breaker onde fizer sentido.</p></div>
+          <div class="timeline-item"><strong>Phase 4 — Observability</strong><p>OpenTelemetry, dashboards, alertas operacionais, métricas de negócio e tracing distribuído.</p></div>
+          <div class="timeline-item"><strong>Phase 5 — Advanced Fraud Intelligence</strong><p>Score híbrido, features comportamentais, integração com modelos de ML e investigação assistida.</p></div>
+        </div>
+
+        <div class="callout">
+          <p>
+            A Complete Solution transforma a demonstração técnica em uma plataforma antifraude evolutiva:
+            simples no núcleo, forte nas bordas e pronta para operar em ambiente financeiro real.
+          </p>
+        </div>
+      </section>
+
+      <footer>Fraud Detection Engine — Complete Solution. Voltar para <a href="../"><strong>MVP</strong></a>.</footer>
+    </main>
+  </div>
+</body>
+</html>
