@@ -3,6 +3,7 @@ package br.com.nandoligeiro.frauddetection.infrastructure.config;
 import br.com.nandoligeiro.frauddetection.infrastructure.adapter.kafka.TransactionEventPayload;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +16,12 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,11 +65,27 @@ public class KafkaTransactionFlowConfig {
     }
 
     @Bean
+    CommonErrorHandler transactionKafkaErrorHandler(
+            KafkaTemplate<String, TransactionEventPayload> template,
+            @Value("${fraud.kafka.topics.dlq}") String dlqTopic,
+            @Value("${fraud.kafka.retry.backoff-ms:1000}") long backoffMs,
+            @Value("${fraud.kafka.retry.max-attempts:3}") long maxAttempts
+    ) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+                template,
+                (record, exception) -> new TopicPartition(dlqTopic, record.partition())
+        );
+        return new DefaultErrorHandler(recoverer, new FixedBackOff(backoffMs, maxAttempts - 1));
+    }
+
+    @Bean
     ConcurrentKafkaListenerContainerFactory<String, TransactionEventPayload> kafkaListenerContainerFactory(
-            ConsumerFactory<String, TransactionEventPayload> consumerFactory
+            ConsumerFactory<String, TransactionEventPayload> consumerFactory,
+            CommonErrorHandler transactionKafkaErrorHandler
     ) {
         ConcurrentKafkaListenerContainerFactory<String, TransactionEventPayload> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
+        factory.setCommonErrorHandler(transactionKafkaErrorHandler);
         return factory;
     }
 }
