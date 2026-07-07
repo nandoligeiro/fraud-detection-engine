@@ -3,6 +3,7 @@ package br.com.nandoligeiro.frauddetection.application.detection.service;
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.DetectFraudUseCase;
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.EvaluateTransactionCommand;
 import br.com.nandoligeiro.frauddetection.application.detection.port.in.FraudDetectionResult;
+import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertAuditPort;
 import br.com.nandoligeiro.frauddetection.application.port.out.FraudAlertPublisherPort;
 import br.com.nandoligeiro.frauddetection.application.port.out.RuleProviderPort;
 import br.com.nandoligeiro.frauddetection.domain.fraud.model.FraudAlert;
@@ -25,11 +26,13 @@ public class FraudDetectionService implements DetectFraudUseCase {
 
     private final RuleProviderPort ruleProvider;
     private final FraudAlertPublisherPort alertPublisher;
+    private final FraudAlertAuditPort alertAudit;
     private final FraudAlertFactory alertFactory;
 
-    public FraudDetectionService(RuleProviderPort ruleProvider, FraudAlertPublisherPort alertPublisher, Clock clock) {
+    public FraudDetectionService(RuleProviderPort ruleProvider, FraudAlertPublisherPort alertPublisher, FraudAlertAuditPort alertAudit, Clock clock) {
         this.ruleProvider = ruleProvider;
         this.alertPublisher = alertPublisher;
+        this.alertAudit = alertAudit;
         this.alertFactory = new FraudAlertFactory(clock);
     }
 
@@ -55,10 +58,20 @@ public class FraudDetectionService implements DetectFraudUseCase {
         FraudAlert alert = alertFactory.createAlert(transaction, triggeredRules);
         log.info("alert created alertId={} transactionId={} decision={} severity={} triggeredRules={}", alert.alertId(), alert.transactionId(), alert.decision(), alert.severity(), alert.triggeredRules().size());
 
+        saveAudit(alert);
         alertPublisher.publish(alert);
 
         log.info("detection finished transactionId={} decision={} alertId={}", transaction.id().value(), alert.decision(), alert.alertId());
 
         return FraudDetectionResult.suspicious(transaction, alert);
+    }
+
+    private void saveAudit(FraudAlert alert) {
+        try {
+            alertAudit.save(alert);
+            log.info("alert audit persisted alertId={} transactionId={}", alert.alertId(), alert.transactionId());
+        } catch (Exception exception) {
+            log.warn("alert audit failed alertId={} transactionId={}", alert.alertId(), alert.transactionId(), exception);
+        }
     }
 }
