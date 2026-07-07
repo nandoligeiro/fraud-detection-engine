@@ -21,28 +21,32 @@ DLQ
 política de reprocessamento
 ```
 
-## Por que isso importa
+## Passo 1 — tópicos explícitos
 
-Em um fluxo assíncrono, erro faz parte da arquitetura.
+O primeiro PR desta evolução adiciona configuração explícita dos tópicos via Spring Kafka.
 
-Uma mensagem inválida, uma falha temporária de infraestrutura ou uma exceção no consumer não pode travar uma partição indefinidamente nem sumir silenciosamente.
+Antes, o ambiente local podia depender de auto-create topic ou de script manual.
 
-## Estratégia
-
-### 1. Tópicos explícitos
-
-Os tópicos deixam de depender apenas de auto-create do Kafka local.
-
-Tópicos previstos:
+Agora, quando `fraud.kafka.enabled=true`, a aplicação declara os tópicos esperados:
 
 ```text
-transaction-events
-fraud-alerts
-rule-updates
-fraud-dlq
+transaction-events  12 partitions
+fraud-alerts        12 partitions
+rule-updates        3 partitions
+fraud-dlq           3 partitions
 ```
 
-### 2. Retry controlado
+## Por que isso importa
+
+Tópico é contrato operacional.
+
+Se a aplicação depende de um tópico, esse tópico precisa estar claro no código, nos scripts e na documentação.
+
+Isso evita ambientes inconsistentes e facilita a conversa sobre particionamento, escala de consumers e DLQ.
+
+## Próximos passos
+
+### Retry controlado
 
 Falhas transitórias devem ser tentadas poucas vezes antes de seguir para DLQ.
 
@@ -53,7 +57,7 @@ maxAttempts = 3
 backoff = 1s
 ```
 
-### 3. DLQ
+### DLQ
 
 Eventos que não puderem ser processados seguem para:
 
@@ -61,7 +65,7 @@ Eventos que não puderem ser processados seguem para:
 fraud-dlq
 ```
 
-### 4. Operação
+### Operação
 
 A DLQ permite:
 
@@ -72,4 +76,4 @@ A DLQ permite:
 
 ## Frase para entrevista
 
-> Depois de fechar o MVP, a primeira evolução foi tratar erro como parte do desenho assíncrono. Kafka não pode ser só o caminho feliz. Eu preciso de tópicos explícitos, retry controlado, DLQ e uma política de reprocessamento para sustentar operação real.
+> Depois de fechar o MVP, a primeira evolução foi tratar Kafka como parte operacional da arquitetura, não só como detalhe técnico. Comecei declarando explicitamente os tópicos e particionamento. Depois disso, a evolução natural é retry controlado, DLQ e política de reprocessamento.
