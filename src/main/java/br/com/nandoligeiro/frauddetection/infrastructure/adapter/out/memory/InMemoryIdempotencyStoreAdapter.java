@@ -1,6 +1,7 @@
 package br.com.nandoligeiro.frauddetection.infrastructure.adapter.out.memory;
 
 import br.com.nandoligeiro.frauddetection.application.transaction.port.out.TransactionProcessingGuardPort;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@ConditionalOnProperty(name = "fraud.idempotency.provider", havingValue = "memory", matchIfMissing = true)
 public class InMemoryIdempotencyStoreAdapter implements TransactionProcessingGuardPort {
 
     private final Map<String, Instant> keys = new ConcurrentHashMap<>();
