@@ -27,12 +27,14 @@ public class FraudDetectionService implements DetectFraudUseCase {
     private final RuleProviderPort ruleProvider;
     private final FraudAlertPublisherPort alertPublisher;
     private final FraudAlertAuditPort alertAudit;
+    private final FraudMetrics metrics;
     private final FraudAlertFactory alertFactory;
 
-    public FraudDetectionService(RuleProviderPort ruleProvider, FraudAlertPublisherPort alertPublisher, FraudAlertAuditPort alertAudit, Clock clock) {
+    public FraudDetectionService(RuleProviderPort ruleProvider, FraudAlertPublisherPort alertPublisher, FraudAlertAuditPort alertAudit, FraudMetrics metrics, Clock clock) {
         this.ruleProvider = ruleProvider;
         this.alertPublisher = alertPublisher;
         this.alertAudit = alertAudit;
+        this.metrics = metrics;
         this.alertFactory = new FraudAlertFactory(clock);
     }
 
@@ -44,6 +46,7 @@ public class FraudDetectionService implements DetectFraudUseCase {
         log.info("detection started transactionId={} accountId={} rulesLoaded={}", transaction.id().value(), transaction.accountId().value(), rules.size());
 
         if (rules.isEmpty()) {
+            metrics.normal("no-rules");
             log.info("detection finished transactionId={} decision=NORMAL reason=no-rules", transaction.id().value());
             return FraudDetectionResult.normal(transaction);
         }
@@ -51,11 +54,15 @@ public class FraudDetectionService implements DetectFraudUseCase {
         List<RuleEvaluationResult> triggeredRules = DeterministicRuleEngine.withRules(rules).evaluate(transaction);
 
         if (triggeredRules.isEmpty()) {
+            metrics.normal("no-triggered-rules");
             log.info("detection finished transactionId={} decision=NORMAL triggeredRules=0", transaction.id().value());
             return FraudDetectionResult.normal(transaction);
         }
 
         FraudAlert alert = alertFactory.createAlert(transaction, triggeredRules);
+        metrics.suspicious(alert.severity());
+        metrics.alert(alert.severity());
+        metrics.rules(triggeredRules.size());
         log.info("alert created alertId={} transactionId={} decision={} severity={} triggeredRules={}", alert.alertId(), alert.transactionId(), alert.decision(), alert.severity(), alert.triggeredRules().size());
 
         saveAudit(alert);
@@ -69,8 +76,10 @@ public class FraudDetectionService implements DetectFraudUseCase {
     private void saveAudit(FraudAlert alert) {
         try {
             alertAudit.save(alert);
+            metrics.auditSuccess();
             log.info("alert audit persisted alertId={} transactionId={}", alert.alertId(), alert.transactionId());
         } catch (Exception exception) {
+            metrics.auditFailure();
             log.warn("alert audit failed alertId={} transactionId={}", alert.alertId(), alert.transactionId(), exception);
         }
     }
