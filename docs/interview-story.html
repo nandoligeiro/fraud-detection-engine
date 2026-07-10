@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Apresentação técnica do Fraud Detection Engine: arquitetura, decisões, trade-offs e evolução do MVP." />
+  <title>Fraud Detection Engine — Interview Story</title>
+  <style>
+    :root {
+      --paper: #f7f3ea;
+      --paper-strong: #eee8dc;
+      --ink: #181714;
+      --muted: #68645d;
+      --line: rgba(24, 23, 20, .14);
+      --accent: #d97757;
+      --accent-soft: #f0c7b8;
+      --green: #4f6f64;
+      --white: #fffdf8;
+      --shadow: 0 24px 80px rgba(32, 25, 18, .10);
+      --radius: 24px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .34;
+      background-image: radial-gradient(rgba(24, 23, 20, .08) .7px, transparent .7px);
+      background-size: 12px 12px;
+      z-index: -1;
+    }
+
+    a { color: inherit; }
+    button { font: inherit; }
+
+    .progress {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: transparent;
+      z-index: 30;
+    }
+    .progress > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--accent);
+      transition: width .12s linear;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100% - 28px), var(--max));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 14px 12px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(247, 243, 234, .84);
+      backdrop-filter: blur(18px);
+      z-index: 20;
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-mark {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--ink); position: relative;
+    }
+    .brand-mark::after {
+      content: ""; position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); top: 5px; right: 4px;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 253, 248, .72);
+      padding: 8px 12px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: .86rem;
+      cursor: pointer;
+    }
+    .pill:hover { color: var(--ink); border-color: rgba(24,23,20,.28); }
+
+    main { display: block; }
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: grid;
+      align-items: center;
+      padding: 112px 24px 64px;
+    }
+    .wrap { width: min(100%, var(--max)); margin: 0 auto; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      font-size: .74rem;
+      font-weight: 750;
+    }
+    .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--accent); }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { letter-spacing: -.045em; line-height: 1.02; }
+    h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(3.4rem, 9vw, 8rem); font-weight: 500; max-width: 980px; margin-bottom: 26px; }
+    h2 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.5rem, 6vw, 5.7rem); font-weight: 500; max-width: 950px; margin-bottom: 28px; }
+    h3 { font-size: 1.25rem; margin-bottom: 12px; }
+    .lead { max-width: 790px; font-size: clamp(1.08rem, 2vw, 1.45rem); color: var(--muted); }
+    .accent { color: var(--accent); }
+
+    .hero-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 42px; align-items: end; }
+    .hero-note {
+      padding: 24px;
+      border-left: 2px solid var(--accent);
+      color: var(--muted);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+    }
+    .meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+    .meta span { border-top: 1px solid var(--line); padding-top: 10px; min-width: 150px; color: var(--muted); font-size: .88rem; }
+    .meta strong { display: block; color: var(--ink); font-size: 1rem; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      align-items: stretch;
+      margin-top: 42px;
+    }
+    .node, .card {
+      border: 1px solid var(--line);
+      background: rgba(255,253,248,.7);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 0 rgba(255,255,255,.7) inset;
+    }
+    .node { padding: 24px 18px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    .node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 1.4rem;
+      z-index: 2;
+    }
+    .node small { color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+    .node strong { font-size: 1.05rem; }
+    .node.accent-node { background: var(--ink); color: var(--paper); }
+    .node.accent-node small { color: var(--accent-soft); }
+
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .two { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card { padding: clamp(22px, 3vw, 34px); }
+    .card p:last-child { margin-bottom: 0; }
+    .card .number { color: var(--accent); font-size: .82rem; font-weight: 800; letter-spacing: .12em; }
+    .card ul { margin: 18px 0 0; padding-left: 18px; color: var(--muted); }
+    .card li + li { margin-top: 9px; }
+
+    .quote {
+      margin-top: 30px;
+      max-width: 980px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.45rem, 3vw, 2.7rem);
+      line-height: 1.2;
+      letter-spacing: -.025em;
+    }
+    .quote::before { content: "“"; color: var(--accent); }
+    .quote::after { content: "”"; color: var(--accent); }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .layers { display: grid; gap: 12px; }
+    .layer { padding: 22px; border-radius: 20px; border: 1px solid var(--line); }
+    .layer:nth-child(1) { background: var(--ink); color: var(--paper); }
+    .layer:nth-child(2) { background: var(--accent-soft); }
+    .layer:nth-child(3) { background: rgba(255,253,248,.72); }
+    .layer span { display: block; color: var(--muted); font-size: .84rem; margin-top: 6px; }
+    .layer:nth-child(1) span { color: rgba(247,243,234,.65); }
+
+    pre {
+      margin: 0;
+      padding: 28px;
+      border-radius: var(--radius);
+      background: #20201d;
+      color: #f7f3ea;
+      overflow: auto;
+      min-height: 100%;
+      font: 500 .92rem/1.75 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      box-shadow: var(--shadow);
+    }
+    pre .c { color: #9f9a91; }
+    pre .a { color: #ef987b; }
+    pre .g { color: #a9c5b9; }
+
+    .journey { display: grid; gap: 14px; margin-top: 30px; }
+    .journey-row {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 18px;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding: 20px 0;
+    }
+    .journey-row .stage { color: var(--accent); font-weight: 800; }
+    .journey-row .tech { color: var(--muted); }
+    .journey-row .result { border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; font-size: .82rem; }
+
+    .tradeoffs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .trade { padding: 28px; border-top: 1px solid var(--line); }
+    .trade h3 { display: flex; justify-content: space-between; gap: 12px; }
+    .trade h3 span { color: var(--accent); font-weight: 500; }
+    .trade p { color: var(--muted); margin-bottom: 0; }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-top: 32px;
+    }
+    .roadmap .step { min-height: 190px; padding: 22px 16px; border-radius: 20px; border: 1px solid var(--line); background: rgba(255,253,248,.68); }
+    .roadmap .step:nth-child(1), .roadmap .step:nth-child(6) { background: var(--ink); color: var(--paper); }
+    .roadmap .step b { display: block; color: var(--accent); margin-bottom: 34px; }
+    .roadmap .step p { color: var(--muted); font-size: .9rem; }
+    .roadmap .step:nth-child(1) p, .roadmap .step:nth-child(6) p { color: rgba(247,243,234,.65); }
+
+    .final { background: var(--ink); color: var(--paper); }
+    .final::before { opacity: .08; }
+    .final .lead, .final .eyebrow { color: rgba(247,243,234,.68); }
+    .final .eyebrow::before { background: var(--accent); }
+    .final h2 { max-width: 1060px; }
+    .final-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+    .final-actions a { text-decoration: none; padding: 12px 16px; border: 1px solid rgba(247,243,234,.2); border-radius: 999px; }
+    .final-actions a:first-child { background: var(--paper); color: var(--ink); }
+
+    .nav-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      gap: 9px;
+      z-index: 15;
+    }
+    .nav-dots a { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--muted); background: transparent; }
+    .nav-dots a.active { background: var(--accent); border-color: var(--accent); transform: scale(1.25); }
+
+    .hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: .76rem; z-index: 12; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .architecture, .two, .three { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -25px; transform: translateX(50%); }
+      .roadmap { grid-template-columns: repeat(2, 1fr); }
+      .tradeoffs { grid-template-columns: 1fr; }
+      .journey-row { grid-template-columns: 1fr; gap: 5px; }
+      .journey-row .result { justify-self: start; }
+      .nav-dots, .hint, .top-actions .hide-mobile { display: none; }
+      h1 { font-size: clamp(3rem, 16vw, 5rem); }
+    }
+
+    @media (max-width: 560px) {
+      .slide { padding-inline: 18px; }
+      .topbar { top: 10px; }
+      .brand span:last-child { max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .roadmap { grid-template-columns: 1fr; }
+      .meta span { min-width: 120px; }
+    }
+
+    @media print {
+      .topbar, .nav-dots, .hint, .progress { display: none !important; }
+      .slide { min-height: auto; page-break-after: always; padding: 42px 28px; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Fraud Detection Engine</span>
+    </div>
+    <div class="top-actions">
+      <span class="pill hide-mobile" id="counter">01 / 09</span>
+      <button class="pill" type="button" onclick="window.print()">Exportar PDF</button>
+    </div>
+  </header>
+
+  <nav class="nav-dots" aria-label="Navegação da apresentação"></nav>
+  <div class="hint">Use ↑ ↓ ou espaço para navegar</div>
+
+  <main>
+    <section class="slide" id="intro" data-title="Abertura">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Interview story · arquitetura</div>
+          <h1>Fraud<br><span class="accent">Detection</span><br>Engine.</h1>
+          <p class="lead">Uma solução event-driven para receber rápido, desacoplar por evento e tomar decisões antifraude explicáveis.</p>
+          <div class="meta">
+            <span><strong>8k TPS</strong>média esperada</span>
+            <span><strong>25k TPS</strong>pico projetado</span>
+            <span><strong>Java + Kafka</strong>stack principal</span>
+          </div>
+        </div>
+        <aside class="hero-note">“O objetivo não era apenas detectar fraude. Era construir uma base coerente para decidir em tempo real, sustentar falhas e crescer sem acoplar canal, regra e infraestrutura.”</aside>
+      </div>
+    </section>
+
+    <section class="slide" id="problem" data-title="Problema">
+      <div class="wrap">
+        <div class="eyebrow">01 · Entendimento do problema</div>
+        <h2>Antes da tecnologia,<br>uma <span class="accent">jornada de risco.</span></h2>
+        <div class="three">
+          <article class="card"><span class="number">ENTRADA</span><h3>Transação</h3><p>Identidade, conta, cartão, valor, moeda, merchant, canal, localização e horário.</p></article>
+          <article class="card"><span class="number">DECISÃO</span><h3>Regra</h3><p>Alto valor? Internacional? Card-not-present? Qual regra disparou e por quê?</p></article>
+          <article class="card"><span class="number">SAÍDA</span><h3>Alerta</h3><p>Severidade, decisão, regras acionadas, rastreabilidade e efeito sem duplicidade.</p></article>
+        </div>
+        <p class="quote">Transação, regra e alerta são conceitos diferentes, embora façam parte da mesma jornada.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="architecture" data-title="Arquitetura">
+      <div class="wrap">
+        <div class="eyebrow">02 · Decisão arquitetural</div>
+        <h2>Negócio no centro.<br><span class="accent">Tecnologia nas bordas.</span></h2>
+        <div class="architecture">
+          <div class="layers">
+            <div class="layer"><strong>Domain</strong><span>Transação, regras, decisão, severidade e alerta. Sem Spring, Kafka, Redis ou banco.</span></div>
+            <div class="layer"><strong>Application</strong><span>Casos de uso, orquestração e portas de entrada/saída.</span></div>
+            <div class="layer"><strong>Infrastructure</strong><span>REST, Kafka, memória, configuração, persistência e observabilidade.</span></div>
+          </div>
+          <pre><span class="c">br.com.nandoligeiro.frauddetection</span>
+├── <span class="a">application</span>
+│   ├── transaction
+│   └── detection
+├── <span class="g">domain</span>
+│   ├── transaction
+│   ├── fraud
+│   └── rule
+└── infrastructure
+    ├── adapter
+    └── config</pre>
+        </div>
+        <p class="quote">A regra antifraude não deveria saber se a transação veio de REST, Kafka ou de um teste unitário.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="flow" data-title="Fluxo">
+      <div class="wrap">
+        <div class="eyebrow">03 · Jornada ponta a ponta</div>
+        <h2>Receber. Decidir.<br><span class="accent">Alertar.</span></h2>
+        <div class="flow">
+          <div class="node"><small>Canal</small><strong>REST<br>/v1/transactions</strong></div>
+          <div class="node"><small>Ingestão</small><strong>Validação + idempotência</strong></div>
+          <div class="node accent-node"><small>Fronteira</small><strong>Kafka<br>transaction-events</strong></div>
+          <div class="node"><small>Domínio</small><strong>Deterministic<br>Rule Engine</strong></div>
+          <div class="node accent-node"><small>Saída</small><strong>Kafka<br>fraud-alerts</strong></div>
+        </div>
+        <p class="quote">Kafka não é só mensageria; é a fronteira arquitetural entre ingestão e decisão.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="ingestion" data-title="Ingestão">
+      <div class="wrap">
+        <div class="eyebrow">04 · Ingestão e escala</div>
+        <h2>O canal entra rápido.<br>O processamento <span class="accent">respira.</span></h2>
+        <div class="two">
+          <article class="card">
+            <span class="number">NO MVP</span>
+            <h3>Controle simples</h3>
+            <p>A porta <code>TransactionProcessingGuardPort</code> evita repetição usando uma implementação em memória.</p>
+            <ul><li>baixo custo para demonstrar</li><li>fluxo completo validado</li><li>limitação explícita para múltiplos pods</li></ul>
+          </article>
+          <article class="card">
+            <span class="number">EM PRODUÇÃO</span>
+            <h3>Idempotência distribuída</h3>
+            <p>Redis com operação atômica:</p>
+            <pre style="min-height:auto; margin-top:18px;">SET key value NX EX ttl</pre>
+            <ul><li>retries seguros</li><li>coordenação entre pods</li><li>efeito effectively-once</li></ul>
+          </article>
+        </div>
+        <p class="quote">Não vendi exactly-once. Assumi at-least-once delivery e garanti efeito effectively-once com idempotência.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="detection" data-title="Detecção">
+      <div class="wrap">
+        <div class="eyebrow">05 · Decisão antifraude</div>
+        <h2>Começar explicável.<br>Evoluir <span class="accent">sem caixa-preta.</span></h2>
+        <div class="journey">
+          <div class="journey-row"><span class="stage">Consumer</span><span class="tech">TransactionEventPayload → Transaction</span><span class="result">Reconstrói domínio</span></div>
+          <div class="journey-row"><span class="stage">Use case</span><span class="tech">FraudDetectionService → RuleProviderPort</span><span class="result">Carrega regras</span></div>
+          <div class="journey-row"><span class="stage">Engine</span><span class="tech">HIGH_AMOUNT + INTERNATIONAL_CARD_NOT_PRESENT</span><span class="result">Avalia sinais</span></div>
+          <div class="journey-row"><span class="stage">Factory</span><span class="tech">FraudAlertFactory</span><span class="result">Gera decisão</span></div>
+        </div>
+        <p class="quote">Regras determinísticas são explicáveis, testáveis e auditáveis — três moedas fortes em fraude.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="mvp" data-title="MVP">
+      <div class="wrap">
+        <div class="eyebrow">06 · MVP demonstrável</div>
+        <h2>Um caminho feliz<br>que realmente <span class="accent">fecha.</span></h2>
+        <div class="three">
+          <article class="card"><span class="number">01</span><h3>Entrada comprovada</h3><p>Recebimento REST, validação do comando e publicação no tópico de transações.</p></article>
+          <article class="card"><span class="number">02</span><h3>Decisão comprovada</h3><p>Consumo assíncrono, aplicação das regras e criação do alerta de domínio.</p></article>
+          <article class="card"><span class="number">03</span><h3>Saída comprovada</h3><p>Publicação e consumo do alerta, simulando backoffice, push ou e-mail.</p></article>
+        </div>
+        <pre style="margin-top:24px; min-height:auto;"><span class="a">make</span> up
+<span class="a">make</span> kafka-topics
+<span class="a">make</span> run-mvp</pre>
+        <p class="quote">O MVP é pequeno por escolha, não por falta de visão.</p>
+      </div>
+    </section>
+
+    <section class="slide" id="tradeoffs" data-title="Trade-offs">
+      <div class="wrap">
+        <div class="eyebrow">07 · Trade-offs assumidos</div>
+        <h2>Arquitetura é escolher<br>qual problema <span class="accent">vale pagar.</span></h2>
+        <div class="tradeoffs">
+          <article class="trade"><h3>Assíncrono <span>vs.</span> síncrono</h3><p>Ganho escala e desacoplamento; pago com idempotência, lag, DLQ e observabilidade.</p></article>
+          <article class="trade"><h3>Determinístico <span>vs.</span> ML</h3><p>Ganho explicabilidade e auditoria; adio sofisticação e preparo um score híbrido futuro.</p></article>
+          <article class="trade"><h3>Memória <span>vs.</span> Redis</h3><p>Ganho velocidade de entrega no MVP; aceito que múltiplos pods exigem adapter distribuído.</p></article>
+          <article class="trade"><h3>Configuração <span>vs.</span> banco</h3><p>Fecho o fluxo rápido; deixo governança e versionamento para PostgreSQL + Rule Admin API.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="roadmap" data-title="Evolução">
+      <div class="wrap">
+        <div class="eyebrow">08 · Visão de produção</div>
+        <h2>O MVP prova o caminho.<br>A produção exige <span class="accent">disciplina.</span></h2>
+        <div class="roadmap">
+          <div class="step"><b>00</b><h3>MVP</h3><p>Fluxo ponta a ponta demonstrável.</p></div>
+          <div class="step"><b>01</b><h3>Redis</h3><p>Idempotência distribuída entre pods.</p></div>
+          <div class="step"><b>02</b><h3>PostgreSQL</h3><p>Regras, versões e auditoria da decisão.</p></div>
+          <div class="step"><b>03</b><h3>DLQ + Retry</h3><p>Quarentena e reprocessamento seguro.</p></div>
+          <div class="step"><b>04</b><h3>OpenTelemetry</h3><p>Trace, lag, latência, p95/p99 e métricas de negócio.</p></div>
+          <div class="step"><b>05</b><h3>Hybrid Score</h3><p>Regras + modelo de risco, mantendo explicabilidade.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide final" id="closing" data-title="Fechamento">
+      <div class="wrap">
+        <div class="eyebrow">09 · Fechamento</div>
+        <h2>Simples para validar.<br>Estruturado para <span class="accent">crescer.</span></h2>
+        <p class="lead">A prioridade foi criar separação clara de responsabilidades, um fluxo demonstrável e pontos de evolução explícitos — sem transformar o MVP em uma maquete de produção impossível de sustentar.</p>
+        <p class="quote">Uma boa arquitetura não tenta prever tudo. Ela preserva opções sem esconder os custos.</p>
+        <div class="final-actions">
+          <a href="https://github.com/nandoligeiro/fraud-detection-engine" target="_blank" rel="noreferrer">Ver repositório</a>
+          <a href="12-Interview-Story.md">Abrir roteiro completo</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const nav = document.querySelector('.nav-dots');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+
+    slides.forEach((slide, index) => {
+      const dot = document.createElement('a');
+      dot.href = `#${slide.id}`;
+      dot.title = slide.dataset.title;
+      dot.setAttribute('aria-label', `Ir para ${slide.dataset.title}`);
+      nav.appendChild(dot);
+    });
+
+    const dots = [...nav.querySelectorAll('a')];
+
+    function setActive(index) {
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+      counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActive(slides.indexOf(entry.target));
+      });
+    }, { threshold: .55 });
+
+    slides.forEach(slide => observer.observe(slide));
+
+    function currentSlideIndex() {
+      const center = window.scrollY + window.innerHeight / 2;
+      let closest = 0;
+      let distance = Infinity;
+      slides.forEach((slide, i) => {
+        const slideCenter = slide.offsetTop + slide.offsetHeight / 2;
+        const nextDistance = Math.abs(center - slideCenter);
+        if (nextDistance < distance) { distance = nextDistance; closest = i; }
+      });
+      return closest;
+    }
+
+    function go(delta) {
+      const target = Math.max(0, Math.min(slides.length - 1, currentSlideIndex() + delta));
+      slides[target].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    window.addEventListener('keydown', event => {
+      if (['ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); go(1); }
+      if (['ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); go(-1); }
+      if (event.key === 'Home') slides[0].scrollIntoView({ behavior: 'smooth' });
+      if (event.key === 'End') slides.at(-1).scrollIntoView({ behavior: 'smooth' });
+    });
+
+    window.addEventListener('scroll', () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = `${max ? (window.scrollY / max) * 100 : 0}%`;
+    }, { passive: true });
+
+    setActive(0);
+  </script>
+</body>
+</html>
